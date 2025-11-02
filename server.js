@@ -8,7 +8,7 @@ import { encodeSkin } from "./encodeSkin.js"; // import your encoder
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const BONK_AVATAR_UPDATE_URL = "https://bonk2.io/scripts/avatar_update.php";
-const BONK_LOGIN_URL = "https://bonk2.io/scripts/login.php";
+const BONK_LOGIN_URL = "https://bonk2.io/scripts/login_legacy.php";
 
 const app = express();
 
