@@ -843,6 +843,27 @@ export default function SkinEditor() {
     );
   }
 
+  function moveShapeUp(i) {
+  setShapes((prev) => {
+    if (i >= prev.length - 1) return prev; // already at top
+    const newShapes = [...prev];
+    [newShapes[i], newShapes[i + 1]] = [newShapes[i + 1], newShapes[i]];
+    return newShapes;
+  });
+  setSelectedIndices([i + 1]);
+}
+
+  function moveShapeDown(i) {
+    setShapes((prev) => {
+      if (i <= 0) return prev; // already at bottom
+      const newShapes = [...prev];
+      [newShapes[i], newShapes[i - 1]] = [newShapes[i - 1], newShapes[i]];
+      return newShapes;
+    });
+    setSelectedIndices([i - 1]);
+  }
+
+
   // ---------- Multi-select drag ----------
   function onMouseDownShape(e, i) {
     e.stopPropagation();
@@ -1527,6 +1548,24 @@ export default function SkinEditor() {
                     Flip Y
                   </label>
                 </div>
+
+                <div className="layer-move-row">
+                  <button
+                    className="move-btn"
+                    onClick={() => moveShapeUp(i)}
+                    disabled={i === shapes.length - 1}
+                  >
+                    Move Up
+                  </button>
+                  <button
+                    className="move-btn"
+                    onClick={() => moveShapeDown(i)}
+                    disabled={i === 0}
+                  >
+                    Move Down
+                  </button>
+                </div>
+
 
                 <button
                   className="delete-btn"

@@ -305,3 +305,32 @@ body {
   background: #d32f2f;
 }
 
+.layer-move-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.move-btn {
+  flex: 1;
+  background: #00695c;
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.move-btn:hover {
+  background: #009688;
+  transform: translateY(-1px);
+}
+
+.move-btn:disabled {
+  background: #2a3f52;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
