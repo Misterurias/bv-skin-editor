@@ -1284,7 +1284,7 @@ export default function SkinEditor() {
 
               const data = await res.json();
               if (data.ok) {
-                alert("✅ Skin applied successfully!");
+                alert(`✅ Skin applied successfully to slot ${data.activeSlot}!`);
                 console.log("Skin code:", data.skinCode);
               } else {
                 alert("❌ Failed to wear skin: " + (data.error || "unknown"));

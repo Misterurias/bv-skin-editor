@@ -18,42 +18,46 @@ app.use(express.json({ limit: "1mb" }));
 
 app.post("/api/wear", async (req, res) => {
   try {
-    const { username, password, slot = 3, skin } = req.body;
+    const { username, password, skin } = req.body;
     if (!username || !password || !skin) {
       return res.status(400).json({ ok: false, error: "missing_params" });
     }
 
-    // 1️⃣ Log into Bonk.io to get a token
-    const loginRes = await fetch("https://bonk2.io/scripts/login_legacy.php", {
+    // 1️⃣ Login to Bonk.io
+    const loginRes = await fetch(BONK_LOGIN_URL, {
       method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         task: "legacy",
         username,
         password,
       }),
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
 
     const loginData = await loginRes.json();
     if (loginData.r !== "success" || !loginData.token) {
-      return res.status(401).json({ ok: false, error: "login_failed" });
+      return res.status(401).json({ ok: false, error: loginData.error || "login_failed" });
     }
 
     const token = loginData.token;
+    const activeSlot =
+      loginData.activeAvatarNumber ||
+      loginData.activeavatarnumber ||
+      3; // fallback if missing
 
-    // 2️⃣ Encode the skin JSON
+    // 2️⃣ Encode JSON into skinCode
     const skinCode = encodeSkin(skin);
 
-    // 3️⃣ Send avatar update request
-    const updateRes = await fetch(BONK_UPDATE_URL, {
+    // 3️⃣ Apply skin to user’s active slot
+    const updateRes = await fetch(BONK_AVATAR_UPDATE_URL, {
       method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         task: "updateavatar",
         token,
-        newavatarslot: String(slot),
+        newavatarslot: String(activeSlot),
         newavatar: skinCode,
       }),
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
 
     const updateData = await updateRes.json();
@@ -61,10 +65,10 @@ app.post("/api/wear", async (req, res) => {
       return res.status(400).json({ ok: false, error: updateData.error || "update_failed" });
     }
 
-    // 4️⃣ Done
-    res.json({ ok: true, skinCode });
+    // ✅ Done
+    res.json({ ok: true, skinCode, activeSlot });
   } catch (err) {
-    console.error("Error wearing skin:", err);
+    console.error("Error in /api/wear:", err);
     res.status(500).json({ ok: false, error: "server_error" });
   }
 });
