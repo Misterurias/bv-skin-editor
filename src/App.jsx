@@ -1008,45 +1008,6 @@ export default function SkinEditor() {
   }
 
   // ---------- Export / Import ----------
-    <button
-    className="editor-btn"
-    onClick={async () => {
-      const skinJSON = {
-        bc: parseInt(baseColor.replace("#", ""), 16),
-        layers: shapes.map((s) => ({
-          id: s.id,
-          scale: +(s.scale / BONK_SCALE_FACTOR).toFixed(6),
-          angle: +s.angle.toFixed(6),
-          x: +(-((s.x - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
-          y: +(((s.y - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
-          flipX: !!s.flipX,
-          flipY: !!s.flipY,
-          color: parseInt(s.color.replace("#", ""), 16),
-        })),
-      };
-
-      const username = prompt("Bonk.io Username:");
-      const password = prompt("Bonk.io Password:");
-      if (!username || !password) return alert("Missing credentials");
-
-      const res = await fetch("/api/wear", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, skin: skinJSON }),
-      });
-
-      const data = await res.json();
-      if (data.ok) {
-        alert("✅ Skin applied successfully!");
-        console.log("Skin code:", data.skinCode);
-      } else {
-        alert("❌ Failed to wear skin: " + (data.error || "unknown"));
-      }
-    }}
-  >
-    Wear Skin
-  </button>
-
 
   function exportJSON() {
     const out = {
@@ -1294,6 +1255,44 @@ export default function SkinEditor() {
               onChange={(e) => setBaseColor(e.target.value)}
             />
           </label>
+          <button
+            className="editor-btn"
+            onClick={async () => {
+              const skinJSON = {
+                bc: parseInt(baseColor.replace("#", ""), 16),
+                layers: shapes.map((s) => ({
+                  id: s.id,
+                  scale: +(s.scale / BONK_SCALE_FACTOR).toFixed(6),
+                  angle: +s.angle.toFixed(6),
+                  x: +(-((s.x - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
+                  y: +(((s.y - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
+                  flipX: !!s.flipX,
+                  flipY: !!s.flipY,
+                  color: parseInt(s.color.replace("#", ""), 16),
+                })),
+              };
+
+              const username = prompt("Bonk.io Username:");
+              const password = prompt("Bonk.io Password:");
+              if (!username || !password) return alert("Missing credentials");
+
+              const res = await fetch("/api/wear", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password, skin: skinJSON }),
+              });
+
+              const data = await res.json();
+              if (data.ok) {
+                alert("✅ Skin applied successfully!");
+                console.log("Skin code:", data.skinCode);
+              } else {
+                alert("❌ Failed to wear skin: " + (data.error || "unknown"));
+              }
+            }}
+          >
+            Wear Skin
+          </button>
           <button className="editor-btn" onClick={exportJSON}>Export</button>
           <label className="file-label">
             Import
