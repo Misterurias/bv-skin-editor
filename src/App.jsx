@@ -1443,6 +1443,107 @@ export default function SkinEditor() {
         </div>
       </div>
 
+      {/* Shape Properties Panel */}
+      {selectedIndices.length === 1 && (
+        <div className="shape-properties">
+          <h3>Shape Properties</h3>
+          {(() => {
+            const i = selectedIndices[0];
+            const s = shapes[i];
+            return (
+              <div className="shape-props-form">
+                <label>
+                  Color:
+                  <input
+                    type="color"
+                    value={s.color}
+                    onChange={(e) => updateShape(i, { color: e.target.value })}
+                  />
+                </label>
+
+                <label>
+                  Scale:
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={s.scale.toFixed(3)}
+                    onChange={(e) =>
+                      updateShape(i, { scale: parseFloat(e.target.value) || 0 })
+                    }
+                  />
+                </label>
+
+                <label>
+                  Angle:
+                  <input
+                    type="number"
+                    step="1"
+                    value={s.angle.toFixed(3)}
+                    onChange={(e) =>
+                      updateShape(i, { angle: parseFloat(e.target.value) || 0 })
+                    }
+                  />
+                </label>
+
+                <label>
+                  X Pos:
+                  <input
+                    type="number"
+                    step="1"
+                    value={s.x.toFixed(1)}
+                    onChange={(e) =>
+                      updateShape(i, { x: parseFloat(e.target.value) || 0 })
+                    }
+                  />
+                </label>
+
+                <label>
+                  Y Pos:
+                  <input
+                    type="number"
+                    step="1"
+                    value={s.y.toFixed(1)}
+                    onChange={(e) =>
+                      updateShape(i, { y: parseFloat(e.target.value) || 0 })
+                    }
+                  />
+                </label>
+
+                <div className="flip-row">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={s.flipX}
+                      onChange={(e) => updateShape(i, { flipX: e.target.checked })}
+                    />{" "}
+                    Flip X
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={s.flipY}
+                      onChange={(e) => updateShape(i, { flipY: e.target.checked })}
+                    />{" "}
+                    Flip Y
+                  </label>
+                </div>
+
+                <button
+                  className="delete-btn"
+                  onClick={() => {
+                    setShapes((prev) => prev.filter((_, idx) => idx !== i));
+                    setSelectedIndices([]);
+                  }}
+                >
+                  Delete Shape
+                </button>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+
       {/* Shortcuts Modal */}
       {showShortcuts && (
         <div className="modal-overlay" onClick={() => setShowShortcuts(false)}>

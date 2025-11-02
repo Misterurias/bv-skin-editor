@@ -235,4 +235,73 @@ body {
   background: #66ffe0;
 }
 
+.shape-properties {
+  background: rgba(26, 39, 51, 0.95);
+  border: 2px solid #009688;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 0 20px rgba(0, 230, 195, 0.3);
+}
+
+.shape-properties h3 {
+  color: #00e6c3;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  text-align: center;
+  text-shadow: 0 0 8px rgba(0, 230, 195, 0.6);
+}
+
+.shape-props-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shape-props-form label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #eee;
+  font-size: 0.9rem;
+}
+
+.shape-props-form input[type="number"] {
+  width: 90px;
+  background: #1b2b3a;
+  border: 1px solid #009688;
+  border-radius: 6px;
+  color: #fff;
+  padding: 4px 6px;
+}
+
+.shape-props-form input[type="color"] {
+  width: 60px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.flip-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.delete-btn {
+  background: #b71c1c;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #d32f2f;
+}
 
