@@ -1283,7 +1283,8 @@ export default function SkinEditor() {
             onClick={async () => {
               const skinJSON = {
                 bc: parseInt(baseColor.replace("#", ""), 16),
-                layers: shapes.map((s) => ({
+                // layers: shapes.map((s) => ({
+                layers: [...shapes].reverse().map((s) => ({
                   id: s.id,
                   scale: +(s.scale / BONK_SCALE_FACTOR).toFixed(6),
                   angle: +s.angle.toFixed(6),
