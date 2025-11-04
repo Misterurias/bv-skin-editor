@@ -522,54 +522,55 @@ export default function SkinEditor() {
   const HANDLE = 12;
 
   return (
-    <g
-      transform={tr}
-      // Prevent selecting or moving locked shapes
-      onMouseDown={(e) => {
-        if (s.locked) return; // ignore clicks
-        onMouseDownShape(e, i);
-      }}
-      style={{
-        color: s.color,
-        opacity: s.locked ? 0.5 : 1, // visual cue
-        cursor: s.locked ? "not-allowed" : "pointer",
-      }}
-      pointerEvents={s.locked ? "none" : "auto"} // fully non-interactive if locked
-    >
-      {/* SVG content */}
       <g
-        dangerouslySetInnerHTML={{ __html: meta?.html || "" }}
-        fill={s.color}
-        stroke={s.color}
-      />
+        transform={tr}
+        // prevent selecting or moving locked shapes
+        onMouseDown={(e) => {
+          if (s.locked) return; // skip drag logic, but allow pointer hit
+          onMouseDownShape(e, i);
+        }}
+        style={{
+          color: s.color,
+          opacity: s.locked ? 0.5 : 1,
+          cursor: s.locked ? "not-allowed" : "pointer",
+        }}
+        pointerEvents="bounding-box" // ✅ keeps smooth events during drag/resize
+      >
+        {/* SVG content */}
+        <g
+          dangerouslySetInnerHTML={{ __html: meta?.html || "" }}
+          fill={s.color}
+          stroke={s.color}
+        />
 
-      {/* Selection box + handle */}
-      {isSelected(i) && !s.locked && (
-        <>
-          <rect
-            x={-w / 2}
-            y={-h / 2}
-            width={w}
-            height={h}
-            fill="none"
-            stroke="lime"
-            strokeWidth={2}
-            pointerEvents="none"
-          />
-          <rect
-            x={w / 2 - HANDLE / 2}
-            y={-h / 2 - HANDLE / 2}
-            width={HANDLE}
-            height={HANDLE}
-            fill="white"
-            stroke="black"
-            style={{ cursor: "nwse-resize" }}
-            onMouseDown={(e) => onMouseDownHandle(e, i)}
-          />
-        </>
-      )}
-    </g>
-  );
+        {/* Selection box + handle */}
+        {isSelected(i) && !s.locked && (
+          <>
+            <rect
+              x={-w / 2}
+              y={-h / 2}
+              width={w}
+              height={h}
+              fill="none"
+              stroke="lime"
+              strokeWidth={2}
+              pointerEvents="none"
+            />
+            <rect
+              x={w / 2 - HANDLE / 2}
+              y={-h / 2 - HANDLE / 2}
+              width={HANDLE}
+              height={HANDLE}
+              fill="white"
+              stroke="black"
+              style={{ cursor: "nwse-resize" }}
+              onMouseDown={(e) => onMouseDownHandle(e, i)}
+            />
+          </>
+        )}
+      </g>
+    );
+
 }
 
 
