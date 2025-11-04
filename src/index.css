@@ -66,8 +66,12 @@ html, body {
 
 /* Canvas fills entire screen */
 .editor-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 60%;
-  height: 80%;
+  height: auto;
   max-width: 90vw;
   max-height: 90vh;
   background: #0d141c;
@@ -76,6 +80,7 @@ html, body {
   box-shadow: 0 0 20px rgba(0, 230, 195, 0.3);
   cursor: grab;
 }
+
 
 /* ===== Top Tools Bar ===== */
 .tools-bar {
