@@ -314,6 +314,7 @@ function moveShapeDown(i) {
   dragRef.current = { dragging, startX, startY, zoom: zoomAtDragStart, originalPositions };
 
   function onMove(ev) {
+    if (!dragRef.current) return;
     const ref = dragRef.current;
     if (!ref || !ref.originalPositions) return;
 
@@ -330,6 +331,8 @@ function moveShapeDown(i) {
   }
 
   function onUp(ev) {
+    if (!dragRef.current) return;
+
     const ref = dragRef.current;
     if (!ref || !ref.originalPositions) return;
 
@@ -452,48 +455,43 @@ function moveShapeDown(i) {
 
   // --- Live update for smooth preview (no commit yet) ---
   function onMove(ev) {
-    const cur = toWorld(ev.clientX, ev.clientY);
-    const curVec = {
-      x: cur.x - handleRef.current.cx,
-      y: cur.y - handleRef.current.cy,
-    };
-    const d0 = Math.hypot(handleRef.current.startVec.x, handleRef.current.startVec.y);
-    const d1 = Math.hypot(curVec.x, curVec.y);
-    const scale = Math.max(0.05, handleRef.current.startScale * (d1 / d0));
+    const ref = handleRef.current;
+    if (!ref) return; // ✅ Prevent null crash
 
-    const a0 = Math.atan2(handleRef.current.startVec.y, handleRef.current.startVec.x);
+    const cur = toWorld(ev.clientX, ev.clientY);
+    const curVec = { x: cur.x - ref.cx, y: cur.y - ref.cy };
+    const d0 = Math.hypot(ref.startVec.x, ref.startVec.y);
+    const d1 = Math.hypot(curVec.x, curVec.y);
+    const scale = Math.max(0.05, ref.startScale * (d1 / d0));
+
+    const a0 = Math.atan2(ref.startVec.y, ref.startVec.x);
     const a1 = Math.atan2(curVec.y, curVec.x);
     const deltaDeg = ((a1 - a0) * 180) / Math.PI;
 
     setShapes((prev) =>
       prev.map((s, idx) =>
-        idx === i
-          ? { ...s, scale, angle: handleRef.current.startAngle + deltaDeg }
-          : s
+        idx === i ? { ...s, scale, angle: ref.startAngle + deltaDeg } : s
       )
     );
   }
 
-  // --- Commit final result on release ---
   function onUp(ev) {
-    const cur = toWorld(ev.clientX, ev.clientY);
-    const curVec = {
-      x: cur.x - handleRef.current.cx,
-      y: cur.y - handleRef.current.cy,
-    };
-    const d0 = Math.hypot(handleRef.current.startVec.x, handleRef.current.startVec.y);
-    const d1 = Math.hypot(curVec.x, curVec.y);
-    const scale = Math.max(0.05, handleRef.current.startScale * (d1 / d0));
+    const ref = handleRef.current;
+    if (!ref) return; // ✅ Prevent null crash
 
-    const a0 = Math.atan2(handleRef.current.startVec.y, handleRef.current.startVec.x);
+    const cur = toWorld(ev.clientX, ev.clientY);
+    const curVec = { x: cur.x - ref.cx, y: cur.y - ref.cy };
+    const d0 = Math.hypot(ref.startVec.x, ref.startVec.y);
+    const d1 = Math.hypot(curVec.x, curVec.y);
+    const scale = Math.max(0.05, ref.startScale * (d1 / d0));
+
+    const a0 = Math.atan2(ref.startVec.y, ref.startVec.x);
     const a1 = Math.atan2(curVec.y, curVec.x);
     const deltaDeg = ((a1 - a0) * 180) / Math.PI;
 
     setShapes((prev) => {
       const finalShapes = prev.map((s, idx) =>
-        idx === i
-          ? { ...s, scale, angle: handleRef.current.startAngle + deltaDeg }
-          : s
+        idx === i ? { ...s, scale, angle: ref.startAngle + deltaDeg } : s
       );
       commitShapes(finalShapes);
       return finalShapes;
