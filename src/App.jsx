@@ -1502,6 +1502,20 @@ function moveShapeDown(i) {
           {(() => {
             const i = selectedIndices[0];
             const s = shapes[i];
+
+            const [localScale, setLocalScale] = useState(s.scale);
+            const [localAngle, setLocalAngle] = useState(s.angle);
+            const [localX, setLocalX] = useState(s.x);
+            const [localY, setLocalY] = useState(s.y);
+
+            // sync local state when selecting new shape
+            useEffect(() => {
+              setLocalScale(s.scale);
+              setLocalAngle(s.angle);
+              setLocalX(s.x);
+              setLocalY(s.y);
+            }, [i]);
+
             return (
               <div className="shape-props-form">
                 {/* Color */}
@@ -1520,10 +1534,14 @@ function moveShapeDown(i) {
                   <input
                     type="text"
                     className="neon-input"
-                    value={s.scale.toFixed(3)}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
+                    value={localScale}
+                    onChange={(e) => setLocalScale(e.target.value)}
+                    onBlur={() => {
+                      const val = parseFloat(localScale);
                       if (!isNaN(val)) updateShape(i, { scale: val });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.target.blur();
                     }}
                   />
                 </label>
@@ -1534,41 +1552,54 @@ function moveShapeDown(i) {
                   <input
                     type="text"
                     className="neon-input"
-                    value={s.angle.toFixed(3)}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
+                    value={localAngle}
+                    onChange={(e) => setLocalAngle(e.target.value)}
+                    onBlur={() => {
+                      const val = parseFloat(localAngle);
                       if (!isNaN(val)) updateShape(i, { angle: val });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.target.blur();
                     }}
                   />
                 </label>
 
-                {/* X & Y */}
+                {/* X & Y Position */}
                 <label>
                   X Pos:
                   <input
                     type="text"
                     className="neon-input"
-                    value={s.x.toFixed(1)}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
+                    value={localX}
+                    onChange={(e) => setLocalX(e.target.value)}
+                    onBlur={() => {
+                      const val = parseFloat(localX);
                       if (!isNaN(val)) updateShape(i, { x: val });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.target.blur();
                     }}
                   />
                 </label>
+
                 <label>
                   Y Pos:
                   <input
                     type="text"
                     className="neon-input"
-                    value={s.y.toFixed(1)}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
+                    value={localY}
+                    onChange={(e) => setLocalY(e.target.value)}
+                    onBlur={() => {
+                      const val = parseFloat(localY);
                       if (!isNaN(val)) updateShape(i, { y: val });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.target.blur();
                     }}
                   />
                 </label>
 
-                {/* Flip Controls */}
+                {/* Flip + Move */}
                 <div className="flip-row">
                   <button
                     className={`flip-btn ${s.flipX ? "active" : ""}`}
@@ -1584,7 +1615,6 @@ function moveShapeDown(i) {
                   </button>
                 </div>
 
-                {/* Move Layer Controls */}
                 <div className="move-row">
                   <button
                     className="move-btn"
@@ -1602,7 +1632,6 @@ function moveShapeDown(i) {
                   </button>
                 </div>
 
-                {/* Delete Button */}
                 <button
                   className="delete-btn"
                   onClick={() => {
@@ -1617,6 +1646,7 @@ function moveShapeDown(i) {
           })()}
         </div>
       )}
+
 
 
       {/* === Modals === */}
