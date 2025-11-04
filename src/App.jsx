@@ -1295,53 +1295,99 @@ function moveShapeDown(i) {
           )}
         </h3>
 
-        {shapes
-          .slice()
-          .reverse()
-          .map((s, i) => {
-            const realIndex = shapes.length - 1 - i;
-            const selected = isSelected(realIndex);
-            return (
-              <div
-                key={i}
-                className={`layer-row ${selected ? "active" : ""}`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  marginBottom: "6px",
-                }}
-              >
-                {/* Layer selection */}
-                <button
-                  onClick={() => setSelectedIndices([realIndex])}
-                  className={`layer-btn ${selected ? "active" : ""}`}
-                  style={{ flex: 1 }}
+        <div className="layers-list">
+          {shapes
+            .slice()
+            .reverse()
+            .map((s, i) => {
+              const realIndex = shapes.length - 1 - i;
+              const selected = isSelected(realIndex);
+              return (
+                <div
+                  key={i}
+                  className={`layer-row ${selected ? "active" : ""}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    marginBottom: "6px",
+                    background: selected
+                      ? "rgba(0,255,200,0.15)"
+                      : "rgba(255,255,255,0.05)",
+                    borderRadius: "6px",
+                    padding: "4px",
+                    userSelect: "none",
+                    cursor: "grab",
+                  }}
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", i.toString());
+                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const from = parseInt(e.dataTransfer.getData("text/plain"));
+                    const to = i;
+                    const reversed = [...shapes].reverse();
+                    const [moved] = reversed.splice(from, 1);
+                    reversed.splice(to, 0, moved);
+                    const newShapes = reversed.reverse();
+                    setShapes(newShapes);
+                    commitShapes(newShapes);
+                  }}
                 >
-                  Shape {s.id}
-                </button>
+                  {/* Thumbnail */}
+                  <img
+                    src={`/output_shapes/${s.id}.svg`}
+                    alt=""
+                    width="20"
+                    height="20"
+                    style={{
+                      opacity: s.hidden ? 0.3 : 1,
+                      pointerEvents: "none",
+                    }}
+                  />
 
-                {/* Lock toggle */}
-                <button
-                  className="tiny-btn"
-                  title={s.locked ? "Unlock shape" : "Lock shape"}
-                  onClick={() => updateShape(realIndex, { locked: !s.locked })}
-                >
-                  {s.locked ? "🔒" : "🔓"}
-                </button>
+                  {/* Name */}
+                  <button
+                    onClick={() => setSelectedIndices([realIndex])}
+                    className={`layer-btn ${selected ? "active" : ""}`}
+                    style={{
+                      flex: 1,
+                      textAlign: "left",
+                      background: "none",
+                      border: "none",
+                      color: "inherit",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Shape {s.id}
+                  </button>
 
-                {/* Hide toggle */}
-                <button
-                  className="tiny-btn"
-                  title={s.hidden ? "Show shape" : "Hide shape"}
-                  onClick={() => updateShape(realIndex, { hidden: !s.hidden })}
-                >
-                  {s.hidden ? "🙈" : "👁️"}
-                </button>
-              </div>
-            );
-          })}
+                  {/* Lock toggle */}
+                  <button
+                    className="tiny-btn"
+                    title={s.locked ? "Unlock shape" : "Lock shape"}
+                    onClick={() => updateShape(realIndex, { locked: !s.locked })}
+                  >
+                    {s.locked ? "🔒" : "🔓"}
+                  </button>
+
+                  {/* Hide toggle */}
+                  <button
+                    className="tiny-btn"
+                    title={s.hidden ? "Show shape" : "Hide shape"}
+                    onClick={() => updateShape(realIndex, { hidden: !s.hidden })}
+                  >
+                    {s.hidden ? "🙈" : "👁️"}
+                  </button>
+                </div>
+              );
+            })}
+        </div>
       </div>
+
 
 
       {/* === Top Tools Bar === */}

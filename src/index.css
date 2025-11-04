@@ -362,6 +362,20 @@ html, body {
   padding: 4px;
 }
 
+.layers-list {
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+.layer-row.dragging {
+  opacity: 0.5;
+}
+.layer-row.active {
+  border: 1px solid rgba(0,255,200,0.3);
+  box-shadow: 0 0 6px rgba(0,255,200,0.2);
+}
+
+
 .tiny-btn {
   background: none;
   border: none;
