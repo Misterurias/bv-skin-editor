@@ -66,8 +66,8 @@ html, body {
 
 /* Canvas fills entire screen */
 .editor-canvas {
-  width: 70%;
-  height: 70%;
+  width: 60%;
+  height: 80%;
   max-width: 90vw;
   max-height: 90vh;
   background: #0d141c;
