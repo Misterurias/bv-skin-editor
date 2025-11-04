@@ -1,3 +1,45 @@
+/* ===== Custom Neon Scrollbar Styling ===== */
+
+/* Works on Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* invisible track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 230, 195, 0.25);
+  border-radius: 6px;
+  box-shadow: 0 0 6px rgba(0, 230, 195, 0.4);
+  transition: all 0.25s ease-in-out;
+}
+
+/* Hovered scrollbar thumb — brighter + glow */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 204, 0.6);
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
+}
+
+/* Optional: fade scrollbar in only when hovering the panel */
+.panel::-webkit-scrollbar-thumb {
+  background: transparent;
+  box-shadow: none;
+}
+.panel:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 230, 195, 0.35);
+  box-shadow: 0 0 8px rgba(0, 230, 195, 0.5);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 230, 195, 0.35) transparent;
+}
+
+
+
 /* Global Styles */
 html, body {
   margin: 0;
@@ -15,6 +57,10 @@ html, body {
   position: relative;
   width: 100vw;
   height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0d141c;
   overflow: hidden;
 }
 
