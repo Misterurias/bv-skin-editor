@@ -1151,9 +1151,8 @@ export default function SkinEditor() {
       </svg>
 
       {/* === Floating Toggles === */}
-      <button className="toggle-btn left" onClick={() => setShowShapes((v) => !v)}>Shapes</button>
-      <button className="toggle-btn right" onClick={() => setShowLayers((v) => !v)}>Layers</button>
-      <button className="toggle-btn bottom" onClick={() => setShowToolbar((v) => !v)}>Tools</button>
+      <button className="dock-btn left" onClick={() => setShowShapes((v) => !v)}>Shapes</button>
+      <button className="dock-btn right" onClick={() => setShowLayers((v) => !v)}>Layers</button>
 
       {/* === Left Panel: Shapes === */}
       <div className={`panel panel-left ${showShapes ? "open" : ""}`}>
@@ -1192,28 +1191,35 @@ export default function SkinEditor() {
           })}
       </div>
 
-      {/* === Bottom Panel: Toolbar === */}
-      <div className={`panel panel-bottom ${showToolbar ? "open" : ""}`}>
-        <div className="toolbar-buttons">
-          <label>
-            Base color:
-            <input
-              type="color"
-              value={baseColor}
-              onChange={(e) => setBaseColor(e.target.value)}
-            />
-          </label>
+      {/* === Top Tools Bar === */}
+      <div className="tools-bar">
+        <label>
+          Base color:
+          <input
+            type="color"
+            value={baseColor}
+            onChange={(e) => setBaseColor(e.target.value)}
+          />
+        </label>
 
-          <button className="editor-btn" onClick={exportJSON}>Export</button>
-          <label className="file-label">
-            Import
-            <input type="file" accept=".json" onChange={importJSON} className="file-input" />
-          </label>
-          <button className="editor-btn" onClick={resetCamera}>Reset View</button>
-          <button className="editor-btn" onClick={() => setShowShortcuts(true)}>
-            <FiSettings size={16} /> Shortcuts
-          </button>
-          <button className="editor-btn" onClick={async () => {
+        <button className="editor-btn" onClick={exportJSON}>Export</button>
+
+        <label className="file-label">
+          Import
+          <input
+            type="file"
+            accept=".json"
+            onChange={importJSON}
+            className="file-input"
+          />
+        </label>
+
+        <button className="editor-btn" onClick={resetCamera}>Reset View</button>
+        <button className="editor-btn" onClick={() => setShowShortcuts(true)}>Shortcuts</button>
+
+        <button
+          className="editor-btn"
+          onClick={async () => {
             const skinJSON = {
               bc: parseInt(baseColor.replace("#", ""), 16),
               layers: [...shapes].reverse().map((s) => ({
@@ -1227,23 +1233,29 @@ export default function SkinEditor() {
                 color: parseInt(s.color.replace("#", ""), 16),
               })),
             };
+
             const username = prompt("Bonk.io Username:");
             const password = prompt("Bonk.io Password:");
             if (!username || !password) return alert("Missing credentials");
+
             const res = await fetch("/api/wear", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ username, password, skin: skinJSON }),
             });
+
             const data = await res.json();
             if (data.ok) {
               alert(`✅ Skin applied successfully to slot ${data.activeSlot}!`);
             } else {
               alert("❌ Failed to wear skin: " + (data.error || "unknown"));
             }
-          }}>Wear Skin</button>
-        </div>
+          }}
+        >
+          Wear Skin
+        </button>
       </div>
+
 
       {/* === Shape Properties (auto-slide) === */}
       {selectedIndices.length === 1 && (

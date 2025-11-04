@@ -28,9 +28,60 @@ html, body {
   display: block;
 }
 
-/* ===== Floating Toggle Buttons ===== */
-.toggle-btn {
+/* ===== Top Tools Bar ===== */
+.tools-bar {
   position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 39, 51, 0.85);
+  backdrop-filter: blur(8px);
+  border: 2px solid #00e6c3;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 230, 195, 0.3);
+  padding: 10px 16px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  z-index: 60;
+}
+.tools-bar label {
+  font-weight: bold;
+  color: #fff;
+}
+.editor-btn {
+  background: linear-gradient(180deg, #009688, #00796b);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 6px rgba(0, 230, 195, 0.4);
+}
+.editor-btn:hover {
+  background: linear-gradient(180deg, #00bfa5, #00897b);
+  box-shadow: 0 0 12px rgba(0, 230, 195, 0.8);
+  transform: translateY(-1px);
+}
+.file-input { display: none; }
+.file-label {
+  background: #009688;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.file-label:hover { background: #00bfa5; }
+
+/* ===== Dock Buttons (top-left & top-right) ===== */
+.dock-btn {
+  position: absolute;
+  top: 16px;
   background: rgba(0, 230, 195, 0.9);
   color: #000;
   font-weight: bold;
@@ -38,27 +89,18 @@ html, body {
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.3s ease, background 0.2s ease;
-  z-index: 50;
+  transition: all 0.2s ease;
+  z-index: 55;
   box-shadow: 0 0 10px rgba(0, 230, 195, 0.5);
 }
-.toggle-btn:hover {
+.dock-btn:hover {
   background: #00ffcc;
   transform: scale(1.05);
 }
-.toggle-btn.left { top: 50%; left: 12px; transform: translateY(-50%); }
-.toggle-btn.right { top: 50%; right: 12px; transform: translateY(-50%); }
-.toggle-btn.bottom { bottom: 12px; left: 50%; transform: translateX(-50%); }
+.dock-btn.left { left: 16px; }
+.dock-btn.right { right: 16px; }
 
-/* Move buttons aside when panels open */
-.editor-container.show-shapes .toggle-btn.left {
-  transform: translate(260px, -50%);
-}
-.editor-container.show-layers .toggle-btn.right {
-  transform: translate(-260px, -50%);
-}
-
-/* ===== Sliding Panels ===== */
+/* ===== Sliding Panels (drop down/up) ===== */
 .panel {
   position: absolute;
   background: rgba(26, 39, 51, 0.95);
@@ -67,65 +109,47 @@ html, body {
   box-shadow: 0 0 25px rgba(0, 230, 195, 0.4);
   color: #ddd;
   transition: transform 0.3s ease, opacity 0.3s ease;
-  z-index: 40;
   padding: 14px;
+  z-index: 40;
 }
 
-/* Left Panel (Shapes) */
+/* Shapes Panel (below left button) */
 .panel-left {
-  top: 50%;
-  left: 0;
+  top: 60px;
+  left: 16px;
   width: 260px;
   height: 70%;
   overflow-y: auto;
-  transform: translate(-100%, -50%);
-  z-index: 20;
+  transform: translateY(-120%);
 }
 .panel-left.open {
-  transform: translate(0, -50%);
+  transform: translateY(0);
 }
 
-/* Right Panel (Layers) */
+/* Layers Panel (below right button) */
 .panel-right {
-  top: calc(50% - 180px);
-  right: 0;
+  top: 60px;
+  right: 16px;
   width: 240px;
-  height: 45%;
+  height: 70%;
   overflow-y: auto;
-  transform: translate(100%, -50%);
-  z-index: 25;
+  transform: translateY(-120%);
 }
 .panel-right.open {
-  transform: translate(0, -50%);
+  transform: translateY(0);
 }
 
-/* Shape Properties Panel (stacked below Layers) */
+/* Shape Properties appear below Layers */
 .shape-props-panel {
-  top: calc(50% + 180px);
-  right: 0;
-  width: 260px;
-  max-height: 45%;
+  top: calc(60px + 75%);
+  right: 16px;
+  width: 240px;
+  max-height: 35%;
   overflow-y: auto;
-  transform: translate(100%, -50%);
-  z-index: 30;
+  transform: translateY(120%);
 }
 .shape-props-panel.open {
-  transform: translate(0, -50%);
-}
-
-/* Bottom Panel (Toolbar) */
-.panel-bottom {
-  bottom: 0;
-  left: 50%;
-  transform: translate(-50%, 100%);
-  width: 70%;
-  border-radius: 12px 12px 0 0;
-  text-align: center;
-  padding: 12px;
-  z-index: 40;
-}
-.panel-bottom.open {
-  transform: translate(-50%, 0);
+  transform: translateY(0);
 }
 
 /* ===== Panel Contents ===== */
@@ -162,7 +186,7 @@ html, body {
   filter: brightness(2) invert(1);
 }
 
-/* Layers List */
+/* Layers */
 .layer-btn {
   width: 100%;
   background: #2a3f52;
@@ -174,54 +198,13 @@ html, body {
   text-align: left;
   transition: all 0.2s;
 }
-.layer-btn:hover {
-  background: #345066;
-}
+.layer-btn:hover { background: #345066; }
 .layer-btn.active {
   border: 2px solid #00e6c3;
   background: #1e3146;
   color: #00e6c3;
   font-weight: bold;
 }
-
-/* ===== Toolbar (Bottom Panel Content) ===== */
-.toolbar-buttons {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.toolbar-buttons label {
-  font-weight: bold;
-  color: #fff;
-}
-.editor-btn {
-  background: linear-gradient(180deg, #009688, #00796b);
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 0 6px rgba(0, 230, 195, 0.4);
-}
-.editor-btn:hover {
-  background: linear-gradient(180deg, #00bfa5, #00897b);
-  box-shadow: 0 0 12px rgba(0, 230, 195, 0.8);
-  transform: translateY(-1px);
-}
-.file-input { display: none; }
-.file-label {
-  background: #009688;
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.file-label:hover { background: #00bfa5; }
 
 /* ===== Shape Properties ===== */
 .shape-props-form {
@@ -256,32 +239,6 @@ html, body {
   display: flex;
   justify-content: space-between;
   margin-top: 5px;
-}
-.layer-move-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 10px;
-}
-.move-btn {
-  flex: 1;
-  background: #00695c;
-  border: none;
-  color: #fff;
-  font-weight: bold;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-.move-btn:hover {
-  background: #009688;
-  transform: translateY(-1px);
-}
-.move-btn:disabled {
-  background: #2a3f52;
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 .delete-btn {
   background: #b71c1c;
