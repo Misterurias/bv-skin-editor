@@ -664,10 +664,17 @@ function moveShapeDown(i) {
     return () => window.removeEventListener("keydown", handleHelpShortcut);
   }, []);
 
-  function getShapeMarkup(id) {
+  function getShapeMarkup(id, color = "#000") {
     const meta = svgCache.get(id);
-    return meta ? meta.html : "";
+    if (!meta) return "";
+    const { html, w, h } = meta;
+    return `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="${-w / 2} ${-h / 2} ${w} ${h}" width="24" height="24" fill="${color}" stroke="${color}">
+        ${html}
+      </svg>
+    `;
   }
+
 
 
 // // ---------- Render ----------
@@ -1361,7 +1368,7 @@ function moveShapeDown(i) {
                   {/* Thumbnail */}
                   <div
                     className="layer-thumb"
-                    dangerouslySetInnerHTML={{ __html: getShapeMarkup(s.id) }}
+                    dangerouslySetInnerHTML={{ __html: getShapeMarkup(s.id, s.color) }}
                     style={{
                       width: 26,
                       height: 26,
@@ -1370,7 +1377,6 @@ function moveShapeDown(i) {
                       justifyContent: "center",
                       overflow: "hidden",
                       borderRadius: "4px",
-                      color: s.color,
                       transform: `
                         scale(${s.flipX ? -0.8 : 0.8}, ${s.flipY ? -0.8 : 0.8})
                         rotate(${s.angle}deg)
@@ -1379,6 +1385,7 @@ function moveShapeDown(i) {
                       pointerEvents: "none",
                     }}
                   />
+
 
 
                   {/* Name */}
