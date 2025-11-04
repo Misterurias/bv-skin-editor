@@ -507,8 +507,8 @@ function moveShapeDown(i) {
           color: s.color,
           opacity: s.locked ? 0.5 : 1,
           cursor: s.locked ? "not-allowed" : "pointer",
+          pointerEvents: s.locked ? "none" : "bounding-box", // ✅ key change here
         }}
-        pointerEvents="bounding-box" // ✅ keeps smooth events during drag/resize
       >
         {/* SVG content */}
         <g
