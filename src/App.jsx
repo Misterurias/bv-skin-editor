@@ -280,6 +280,7 @@ export default function SkinEditor() {
     setHistory((h) => h.slice(0, -1));
     setFuture((f) => [shapes, ...f]);
     setShapes(prev);
+    setSelectedIndices((sel) => sel.filter((i) => i < prev.length)); // ✅ keep valid selections only
   }
 
   function redo() {
@@ -288,6 +289,7 @@ export default function SkinEditor() {
     setFuture((f) => f.slice(1));
     setHistory((h) => [...h, shapes]);
     setShapes(next);
+    setSelectedIndices((sel) => sel.filter((i) => i < next.length)); // ✅ guard here too
   }
 
   // Keyboard shortcuts for undo/redo
