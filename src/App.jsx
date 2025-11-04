@@ -75,6 +75,11 @@ export default function SkinEditor() {
   const [selectedIndices, setSelectedIndices] = useState([]);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  
+  // UI state
+  const [showShapes, setShowShapes] = useState(false);
+  const [showLayers, setShowLayers] = useState(false);
+  const [showToolbar, setShowToolbar] = useState(true);
 
   useEffect(() => {
     const seen = localStorage.getItem("seenWelcomePopup");
@@ -551,211 +556,526 @@ export default function SkinEditor() {
     return () => window.removeEventListener("keydown", handleHelpShortcut);
   }, []);
 
-// ---------- Render ----------
-return (
-  <div className="editor-container">
-    <div
-      className="editor-main overlay-dropzone"
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = (evt) => {
-            setOverlay((o) => ({
-              ...o,
-              src: evt.target.result,
-              visible: true,
-            }));
-          };
-          reader.readAsDataURL(file);
-        }
-      }}
-    >
-      {/* Toolbar */}
-      <div className="editor-toolbar">
-        <label>
-          Base color:
-          <input
-            type="color"
-            value={baseColor}
-            onChange={(e) => setBaseColor(e.target.value)}
-          />
-        </label>
+// // ---------- Render ----------
+// return (
+//   <div className="editor-container">
+//     <div
+//       className="editor-main overlay-dropzone"
+//       onDragOver={(e) => e.preventDefault()}
+//       onDrop={(e) => {
+//         e.preventDefault();
+//         const file = e.dataTransfer.files[0];
+//         if (file && file.type.startsWith("image/")) {
+//           const reader = new FileReader();
+//           reader.onload = (evt) => {
+//             setOverlay((o) => ({
+//               ...o,
+//               src: evt.target.result,
+//               visible: true,
+//             }));
+//           };
+//           reader.readAsDataURL(file);
+//         }
+//       }}
+//     >
+//       {/* Toolbar */}
+//       <div className="editor-toolbar">
+//         <label>
+//           Base color:
+//           <input
+//             type="color"
+//             value={baseColor}
+//             onChange={(e) => setBaseColor(e.target.value)}
+//           />
+//         </label>
 
-        <button
-          className="editor-btn"
-          onClick={async () => {
-            const skinJSON = {
-              bc: parseInt(baseColor.replace("#", ""), 16),
-              layers: [...shapes].reverse().map((s) => ({
-                id: s.id,
-                scale: +(s.scale / BONK_SCALE_FACTOR).toFixed(6),
-                angle: +s.angle.toFixed(6),
-                x: +(((s.x - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
-                y: +(((s.y - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
-                flipX: !!s.flipX,
-                flipY: !!s.flipY,
-                color: parseInt(s.color.replace("#", ""), 16),
-              })),
-            };
+//         <button
+//           className="editor-btn"
+//           onClick={async () => {
+//             const skinJSON = {
+//               bc: parseInt(baseColor.replace("#", ""), 16),
+//               layers: [...shapes].reverse().map((s) => ({
+//                 id: s.id,
+//                 scale: +(s.scale / BONK_SCALE_FACTOR).toFixed(6),
+//                 angle: +s.angle.toFixed(6),
+//                 x: +(((s.x - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
+//                 y: +(((s.y - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
+//                 flipX: !!s.flipX,
+//                 flipY: !!s.flipY,
+//                 color: parseInt(s.color.replace("#", ""), 16),
+//               })),
+//             };
 
-            const username = prompt("Bonk.io Username:");
-            const password = prompt("Bonk.io Password:");
-            if (!username || !password) return alert("Missing credentials");
+//             const username = prompt("Bonk.io Username:");
+//             const password = prompt("Bonk.io Password:");
+//             if (!username || !password) return alert("Missing credentials");
 
-            const res = await fetch("/api/wear", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password, skin: skinJSON }),
-            });
+//             const res = await fetch("/api/wear", {
+//               method: "POST",
+//               headers: { "Content-Type": "application/json" },
+//               body: JSON.stringify({ username, password, skin: skinJSON }),
+//             });
 
-            const data = await res.json();
-            if (data.ok) {
-              alert(`✅ Skin applied successfully to slot ${data.activeSlot}!`);
-              console.log("Skin code:", data.skinCode);
-            } else {
-              alert("❌ Failed to wear skin: " + (data.error || "unknown"));
-            }
-          }}
-        >
-          Wear Skin
-        </button>
+//             const data = await res.json();
+//             if (data.ok) {
+//               alert(`✅ Skin applied successfully to slot ${data.activeSlot}!`);
+//               console.log("Skin code:", data.skinCode);
+//             } else {
+//               alert("❌ Failed to wear skin: " + (data.error || "unknown"));
+//             }
+//           }}
+//         >
+//           Wear Skin
+//         </button>
 
-        <button className="editor-btn" onClick={exportJSON}>Export</button>
-        <label className="file-label">
-          Import
-          <input
-            type="file"
-            accept=".json"
-            onChange={importJSON}
-            className="file-input"
-          />
-        </label>
+//         <button className="editor-btn" onClick={exportJSON}>Export</button>
+//         <label className="file-label">
+//           Import
+//           <input
+//             type="file"
+//             accept=".json"
+//             onChange={importJSON}
+//             className="file-input"
+//           />
+//         </label>
 
-        <button
-          className="editor-btn"
-          onClick={() =>
-            selectedIndices.length > 0 &&
-            setShapes((prev) =>
-              prev.map((s, i) =>
-                selectedIndices.includes(i) ? { ...s, flipX: !s.flipX } : s
-              )
-            )
-          }
-        >
-          FlipX
-        </button>
-        <button
-          className="editor-btn"
-          onClick={() =>
-            selectedIndices.length > 0 &&
-            setShapes((prev) =>
-              prev.map((s, i) =>
-                selectedIndices.includes(i) ? { ...s, flipY: !s.flipY } : s
-              )
-            )
-          }
-        >
-          FlipY
-        </button>
+//         <button
+//           className="editor-btn"
+//           onClick={() =>
+//             selectedIndices.length > 0 &&
+//             setShapes((prev) =>
+//               prev.map((s, i) =>
+//                 selectedIndices.includes(i) ? { ...s, flipX: !s.flipX } : s
+//               )
+//             )
+//           }
+//         >
+//           FlipX
+//         </button>
+//         <button
+//           className="editor-btn"
+//           onClick={() =>
+//             selectedIndices.length > 0 &&
+//             setShapes((prev) =>
+//               prev.map((s, i) =>
+//                 selectedIndices.includes(i) ? { ...s, flipY: !s.flipY } : s
+//               )
+//             )
+//           }
+//         >
+//           FlipY
+//         </button>
 
-        <button className="editor-btn" onClick={resetCamera}>
-          Reset View
-        </button>
+//         <button className="editor-btn" onClick={resetCamera}>
+//           Reset View
+//         </button>
 
-        {/* Overlay Controls */}
-        {overlay.src && (
-          <div className="overlay-controls">
-            <label>
-              Opacity:
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={overlay.opacity}
-                onChange={(e) =>
-                  setOverlay((o) => ({
-                    ...o,
-                    opacity: parseFloat(e.target.value),
-                  }))
-                }
-              />
-            </label>
-            <button
-              className="editor-btn"
-              onClick={() =>
-                setOverlay((o) => ({ ...o, visible: !o.visible }))
-              }
-            >
-              {overlay.visible ? "Hide Overlay" : "Show Overlay"}
-            </button>
-            <button
-              className="editor-btn"
-              onClick={() =>
-                setOverlay({
-                  src: null,
-                  x: CANVAS_SIZE / 2,
-                  y: CANVAS_SIZE / 2,
-                  scale: 1,
-                  opacity: 0.5,
-                  visible: true,
-                })
-              }
-            >
-              Remove
-            </button>
-          </div>
-        )}
+//         {/* Overlay Controls */}
+//         {overlay.src && (
+//           <div className="overlay-controls">
+//             <label>
+//               Opacity:
+//               <input
+//                 type="range"
+//                 min="0"
+//                 max="1"
+//                 step="0.05"
+//                 value={overlay.opacity}
+//                 onChange={(e) =>
+//                   setOverlay((o) => ({
+//                     ...o,
+//                     opacity: parseFloat(e.target.value),
+//                   }))
+//                 }
+//               />
+//             </label>
+//             <button
+//               className="editor-btn"
+//               onClick={() =>
+//                 setOverlay((o) => ({ ...o, visible: !o.visible }))
+//               }
+//             >
+//               {overlay.visible ? "Hide Overlay" : "Show Overlay"}
+//             </button>
+//             <button
+//               className="editor-btn"
+//               onClick={() =>
+//                 setOverlay({
+//                   src: null,
+//                   x: CANVAS_SIZE / 2,
+//                   y: CANVAS_SIZE / 2,
+//                   scale: 1,
+//                   opacity: 0.5,
+//                   visible: true,
+//                 })
+//               }
+//             >
+//               Remove
+//             </button>
+//           </div>
+//         )}
 
-        <button
-          className="editor-btn"
-          title="Keyboard Shortcuts"
-          onClick={() => setShowShortcuts(true)}
-        >
-          <FiSettings size={18} style={{ marginRight: "4px" }} />
-          Shortcuts
-        </button>
+//         <button
+//           className="editor-btn"
+//           title="Keyboard Shortcuts"
+//           onClick={() => setShowShortcuts(true)}
+//         >
+//           <FiSettings size={18} style={{ marginRight: "4px" }} />
+//           Shortcuts
+//         </button>
 
-        <input
-          type="color"
-          value={
-            selectedIndices.length === 1
-              ? shapes[selectedIndices[0]].color
-              : "#000000"
-          }
-          onChange={(e) =>
-            selectedIndices.length > 0 &&
-            setShapes((prev) =>
-              prev.map((s, i) =>
-                selectedIndices.includes(i)
-                  ? { ...s, color: e.target.value }
-                  : s
-              )
-            )
-          }
-          title="Shape color"
-        />
-      </div>
+//         <input
+//           type="color"
+//           value={
+//             selectedIndices.length === 1
+//               ? shapes[selectedIndices[0]].color
+//               : "#000000"
+//           }
+//           onChange={(e) =>
+//             selectedIndices.length > 0 &&
+//             setShapes((prev) =>
+//               prev.map((s, i) =>
+//                 selectedIndices.includes(i)
+//                   ? { ...s, color: e.target.value }
+//                   : s
+//               )
+//             )
+//           }
+//           title="Shape color"
+//         />
+//       </div>
 
-      {/* Canvas */}
+//       {/* Canvas */}
+//       <svg
+//         ref={canvasRef}
+//         width={CANVAS_SIZE}
+//         height={CANVAS_SIZE}
+//         className="editor-canvas"
+//         onMouseDown={clearSelection}
+//       >
+//         <g transform={`scale(${camera.zoom}) translate(${camera.x},${camera.y})`}>
+//           <defs>
+//             <clipPath id="playerClip">
+//               <circle
+//                 cx={CANVAS_SIZE / 2}
+//                 cy={CANVAS_SIZE / 2}
+//                 r={BALL_RADIUS_PX}
+//               />
+//             </clipPath>
+//           </defs>
+
+//           {/* Shadow outline */}
+//           <circle
+//             cx={CANVAS_SIZE / 2}
+//             cy={CANVAS_SIZE / 2}
+//             r={BALL_RADIUS_PX + 2}
+//             fill="none"
+//             stroke="rgba(0,0,0,0.25)"
+//             strokeWidth={4}
+//           />
+
+//           {/* Base fill */}
+//           <circle
+//             cx={CANVAS_SIZE / 2}
+//             cy={CANVAS_SIZE / 2}
+//             r={BALL_RADIUS_PX}
+//             fill={baseColor}
+//             stroke="#333"
+//             strokeWidth={3}
+//           />
+
+//           {/* Overlay image */}
+//           {overlay.src && overlay.visible && (
+//             <image
+//               href={overlay.src}
+//               x={overlay.x - CANVAS_SIZE / 2}
+//               y={overlay.y - CANVAS_SIZE / 2}
+//               width={CANVAS_SIZE * overlay.scale}
+//               height={CANVAS_SIZE * overlay.scale}
+//               opacity={overlay.opacity}
+//               style={{ cursor: "move" }}
+//               onMouseDown={(e) => {
+//                 e.stopPropagation();
+//                 overlayDrag.current = {
+//                   startX: e.clientX,
+//                   startY: e.clientY,
+//                   startPos: { x: overlay.x, y: overlay.y },
+//                 };
+//                 const onMove = (ev) => {
+//                   const dx = ev.clientX - overlayDrag.current.startX;
+//                   const dy = ev.clientY - overlayDrag.current.startY;
+//                   setOverlay((o) => ({
+//                     ...o,
+//                     x: overlayDrag.current.startPos.x + dx,
+//                     y: overlayDrag.current.startPos.y + dy,
+//                   }));
+//                 };
+//                 const onUp = () => {
+//                   window.removeEventListener("mousemove", onMove);
+//                   window.removeEventListener("mouseup", onUp);
+//                   overlayDrag.current = null;
+//                 };
+//                 window.addEventListener("mousemove", onMove);
+//                 window.addEventListener("mouseup", onUp);
+//               }}
+//             />
+//           )}
+
+//           {/* Shapes */}
+//           <g clipPath="url(#playerClip)">
+//             {shapes.map((s, i) => (
+//               <Shape key={i} s={s} i={i} />
+//             ))}
+//           </g>
+//         </g>
+//       </svg>
+//     </div>
+
+//     {/* Panels (unchanged) */}
+//     <div className="side-panels">
+//       <div className="shapes-panel">
+//         <h3>Shapes</h3>
+//         <div className="shape-grid">
+//           {Array.from({ length: TOTAL_SHAPES }, (_, idx) => {
+//             const id = idx + 1;
+//             return (
+//               <div key={id} className="shape-item" onClick={() => addShape(id)}>
+//                 <img
+//                   src={`/output_shapes/${id}.svg`}
+//                   alt={`Shape ${id}`}
+//                   width={32}
+//                   height={32}
+//                 />
+//                 <small>{id}</small>
+//               </div>
+//             );
+//           })}
+//         </div>
+//       </div>
+
+//       <div className="layers-panel">
+//         <h3>Layers</h3>
+//         {shapes
+//           .slice()
+//           .reverse()
+//           .map((s, i) => {
+//             const realIndex = shapes.length - 1 - i;
+//             const selected = isSelected(realIndex);
+//             return (
+//               <button
+//                 key={i}
+//                 onClick={() => setSelectedIndices([realIndex])}
+//                 className={`layer-btn ${selected ? "active" : ""}`}
+//               >
+//                 {`Shape ${s.id}`}
+//               </button>
+//             );
+//           })}
+//       </div>
+//     </div>
+
+//     {/* Shape Properties Panel */}
+//       {selectedIndices.length === 1 && (
+//         <div className="shape-properties">
+//           <h3>Shape Properties</h3>
+//           {(() => {
+//             const i = selectedIndices[0];
+//             const s = shapes[i];
+//             return (
+//               <div className="shape-props-form">
+//                 <label>
+//                   Color:
+//                   <input
+//                     type="color"
+//                     value={s.color}
+//                     onChange={(e) => updateShape(i, { color: e.target.value })}
+//                   />
+//                 </label>
+
+//                 <label>
+//                   Scale:
+//                   <input
+//                     type="number"
+//                     step="0.01"
+//                     value={s.scale.toFixed(3)}
+//                     onChange={(e) =>
+//                       updateShape(i, { scale: parseFloat(e.target.value) || 0 })
+//                     }
+//                   />
+//                 </label>
+
+//                 <label>
+//                   Angle:
+//                   <input
+//                     type="number"
+//                     step="1"
+//                     value={s.angle.toFixed(3)}
+//                     onChange={(e) =>
+//                       updateShape(i, { angle: parseFloat(e.target.value) || 0 })
+//                     }
+//                   />
+//                 </label>
+
+//                 <label>
+//                   X Pos:
+//                   <input
+//                     type="number"
+//                     step="1"
+//                     value={s.x.toFixed(1)}
+//                     onChange={(e) =>
+//                       updateShape(i, { x: parseFloat(e.target.value) || 0 })
+//                     }
+//                   />
+//                 </label>
+
+//                 <label>
+//                   Y Pos:
+//                   <input
+//                     type="number"
+//                     step="1"
+//                     value={s.y.toFixed(1)}
+//                     onChange={(e) =>
+//                       updateShape(i, { y: parseFloat(e.target.value) || 0 })
+//                     }
+//                   />
+//                 </label>
+
+//                 <div className="flip-row">
+//                   <label>
+//                     <input
+//                       type="checkbox"
+//                       checked={s.flipX}
+//                       onChange={(e) => updateShape(i, { flipX: e.target.checked })}
+//                     />{" "}
+//                     Flip X
+//                   </label>
+//                   <label>
+//                     <input
+//                       type="checkbox"
+//                       checked={s.flipY}
+//                       onChange={(e) => updateShape(i, { flipY: e.target.checked })}
+//                     />{" "}
+//                     Flip Y
+//                   </label>
+//                 </div>
+
+//                 <div className="layer-move-row">
+//                   <button
+//                     className="move-btn"
+//                     onClick={() => moveShapeUp(i)}
+//                     disabled={i === shapes.length - 1}
+//                   >
+//                     Move Up
+//                   </button>
+//                   <button
+//                     className="move-btn"
+//                     onClick={() => moveShapeDown(i)}
+//                     disabled={i === 0}
+//                   >
+//                     Move Down
+//                   </button>
+//                 </div>
+
+
+//                 <button
+//                   className="delete-btn"
+//                   onClick={() => {
+//                     setShapes((prev) => prev.filter((_, idx) => idx !== i));
+//                     setSelectedIndices([]);
+//                   }}
+//                 >
+//                   Delete Shape
+//                 </button>
+//               </div>
+//             );
+//           })()}
+//         </div>
+//       )}
+
+
+//       {/* Shortcuts Modal */}
+//       {showShortcuts && (
+//         <div className="modal-overlay" onClick={() => setShowShortcuts(false)}>
+//           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+//             <h2>🎹 Keyboard Shortcuts</h2>
+//             <div className="shortcuts-grid">
+//               <div>
+//                 <h3>🧩 Shape Controls</h3>
+//                 <ul>
+//                   <li><b>Arrow Keys</b> — Move (Shift = 10px)</li>
+//                   <li><b>R / Shift+R</b> — Rotate ±5°</li>
+//                   <li><b>+</b> / <b>-</b> — Scale up/down</li>
+//                   <li><b>X / Y</b> — Flip horizontally/vertically</li>
+//                   <li><b>Delete</b> — Delete selected</li>
+//                   <li><b>Ctrl+D</b> — Duplicate selected</li>
+//                   <li><b>Ctrl+C / Ctrl+V</b> — Copy / Paste</li>
+//                   <li><b>Shift / Ctrl+Click</b> — Multi-select</li>
+//                 </ul>
+//               </div>
+//             </div>
+//             <button className="close-btn" onClick={() => setShowShortcuts(false)}>Close</button>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Welcome Popup */}
+//       {showWelcome && (
+//         <div className="modal-overlay" onClick={() => setShowWelcome(false)}>
+//           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+//             <h2>🎨 Welcome to the Bonkverse Skin Editor!</h2>
+//             <p style={{ fontSize: "15px", lineHeight: "1.6", color: "#ccc" }}>
+//               Here’s what you can do right now:
+//             </p>
+//             <ul style={{ fontSize: "14px", lineHeight: "1.6", color: "#ccc" }}>
+//               <li>🧩 <b>Add & Edit Shapes:</b> Click any shape to add it, then drag, rotate, or scale using handles.</li>
+//               <li>🎨 <b>Change Colors:</b> Use the color picker to recolor selected shapes or the base body.</li>
+//               <li>↕️ <b>Layer Controls:</b> Move shapes forward/back or reorder layers using the “Move Up/Down” buttons.</li>
+//               <li>🖱️ <b>Multi-select:</b> Hold <b>Shift</b> or <b>Ctrl</b> to select and move multiple shapes at once.</li>
+//               <li>📷 <b>Image Overlay:</b> Drag and drop an image onto the canvas to trace over it (adjust opacity or hide it anytime).</li>
+//               <li>💾 <b>Export / Import:</b> Save your skin as JSON or load one back in.</li>
+//               <li>👕 <b>Wear Skin:</b> Apply your current design to your Bonk.io account directly.</li>
+//               <li>⚡ <b>Keyboard Shortcuts:</b> Move, rotate, scale, flip, duplicate, or delete using keys (press <b>Shift + ?</b> to view all).</li>
+//               <li>🧭 <b>Camera:</b> Zoom or pan with your mouse wheel and drag empty space to move around.</li>
+//             </ul>
+//             <button
+//               className="close-btn"
+//               style={{ marginTop: "20px" }}
+//               onClick={() => setShowWelcome(false)}
+//             >
+//               Got it!
+//             </button>
+//           </div>
+//         </div>
+//       )}
+
+//     </div>
+// );
+
+  // ---------- Render ----------
+  return (
+    <div className="editor-container">
+
+      {/* === Fullscreen Canvas === */}
       <svg
         ref={canvasRef}
-        width={CANVAS_SIZE}
-        height={CANVAS_SIZE}
         className="editor-canvas"
         onMouseDown={clearSelection}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
+          const file = e.dataTransfer.files[0];
+          if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (evt) =>
+              setOverlay((o) => ({ ...o, src: evt.target.result, visible: true }));
+            reader.readAsDataURL(file);
+          }
+        }}
       >
         <g transform={`scale(${camera.zoom}) translate(${camera.x},${camera.y})`}>
           <defs>
             <clipPath id="playerClip">
-              <circle
-                cx={CANVAS_SIZE / 2}
-                cy={CANVAS_SIZE / 2}
-                r={BALL_RADIUS_PX}
-              />
+              <circle cx={CANVAS_SIZE / 2} cy={CANVAS_SIZE / 2} r={BALL_RADIUS_PX} />
             </clipPath>
           </defs>
 
@@ -769,7 +1089,7 @@ return (
             strokeWidth={4}
           />
 
-          {/* Base fill */}
+          {/* Base color */}
           <circle
             cx={CANVAS_SIZE / 2}
             cy={CANVAS_SIZE / 2}
@@ -824,23 +1144,21 @@ return (
           </g>
         </g>
       </svg>
-    </div>
 
-    {/* Panels (unchanged) */}
-    <div className="side-panels">
-      <div className="shapes-panel">
+      {/* === Floating Toggles === */}
+      <button className="toggle-btn left" onClick={() => setShowShapes((v) => !v)}>Shapes</button>
+      <button className="toggle-btn right" onClick={() => setShowLayers((v) => !v)}>Layers</button>
+      <button className="toggle-btn bottom" onClick={() => setShowToolbar((v) => !v)}>Tools</button>
+
+      {/* === Left Panel: Shapes === */}
+      <div className={`panel panel-left ${showShapes ? "open" : ""}`}>
         <h3>Shapes</h3>
         <div className="shape-grid">
           {Array.from({ length: TOTAL_SHAPES }, (_, idx) => {
             const id = idx + 1;
             return (
               <div key={id} className="shape-item" onClick={() => addShape(id)}>
-                <img
-                  src={`/output_shapes/${id}.svg`}
-                  alt={`Shape ${id}`}
-                  width={32}
-                  height={32}
-                />
+                <img src={`/output_shapes/${id}.svg`} alt={`Shape ${id}`} />
                 <small>{id}</small>
               </div>
             );
@@ -848,7 +1166,8 @@ return (
         </div>
       </div>
 
-      <div className="layers-panel">
+      {/* === Right Panel: Layers === */}
+      <div className={`panel panel-right ${showLayers ? "open" : ""}`}>
         <h3>Layers</h3>
         {shapes
           .slice()
@@ -867,11 +1186,63 @@ return (
             );
           })}
       </div>
-    </div>
 
-    {/* Shape Properties Panel */}
+      {/* === Bottom Panel: Toolbar === */}
+      <div className={`panel panel-bottom ${showToolbar ? "open" : ""}`}>
+        <div className="toolbar-buttons">
+          <label>
+            Base color:
+            <input
+              type="color"
+              value={baseColor}
+              onChange={(e) => setBaseColor(e.target.value)}
+            />
+          </label>
+
+          <button className="editor-btn" onClick={exportJSON}>Export</button>
+          <label className="file-label">
+            Import
+            <input type="file" accept=".json" onChange={importJSON} className="file-input" />
+          </label>
+          <button className="editor-btn" onClick={resetCamera}>Reset View</button>
+          <button className="editor-btn" onClick={() => setShowShortcuts(true)}>
+            <FiSettings size={16} /> Shortcuts
+          </button>
+          <button className="editor-btn" onClick={async () => {
+            const skinJSON = {
+              bc: parseInt(baseColor.replace("#", ""), 16),
+              layers: [...shapes].reverse().map((s) => ({
+                id: s.id,
+                scale: +(s.scale / BONK_SCALE_FACTOR).toFixed(6),
+                angle: +s.angle.toFixed(6),
+                x: +(((s.x - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
+                y: +(((s.y - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
+                flipX: !!s.flipX,
+                flipY: !!s.flipY,
+                color: parseInt(s.color.replace("#", ""), 16),
+              })),
+            };
+            const username = prompt("Bonk.io Username:");
+            const password = prompt("Bonk.io Password:");
+            if (!username || !password) return alert("Missing credentials");
+            const res = await fetch("/api/wear", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password, skin: skinJSON }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+              alert(`✅ Skin applied successfully to slot ${data.activeSlot}!`);
+            } else {
+              alert("❌ Failed to wear skin: " + (data.error || "unknown"));
+            }
+          }}>Wear Skin</button>
+        </div>
+      </div>
+
+      {/* === Shape Properties (auto-slide) === */}
       {selectedIndices.length === 1 && (
-        <div className="shape-properties">
+        <div className="panel panel-right open shape-props-panel">
           <h3>Shape Properties</h3>
           {(() => {
             const i = selectedIndices[0];
@@ -886,7 +1257,6 @@ return (
                     onChange={(e) => updateShape(i, { color: e.target.value })}
                   />
                 </label>
-
                 <label>
                   Scale:
                   <input
@@ -898,7 +1268,6 @@ return (
                     }
                   />
                 </label>
-
                 <label>
                   Angle:
                   <input
@@ -910,7 +1279,6 @@ return (
                     }
                   />
                 </label>
-
                 <label>
                   X Pos:
                   <input
@@ -922,7 +1290,6 @@ return (
                     }
                   />
                 </label>
-
                 <label>
                   Y Pos:
                   <input
@@ -934,7 +1301,6 @@ return (
                     }
                   />
                 </label>
-
                 <div className="flip-row">
                   <label>
                     <input
@@ -953,7 +1319,6 @@ return (
                     Flip Y
                   </label>
                 </div>
-
                 <div className="layer-move-row">
                   <button
                     className="move-btn"
@@ -970,8 +1335,6 @@ return (
                     Move Down
                   </button>
                 </div>
-
-
                 <button
                   className="delete-btn"
                   onClick={() => {
@@ -987,62 +1350,35 @@ return (
         </div>
       )}
 
-
-      {/* Shortcuts Modal */}
+      {/* === Modals === */}
       {showShortcuts && (
         <div className="modal-overlay" onClick={() => setShowShortcuts(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>🎹 Keyboard Shortcuts</h2>
-            <div className="shortcuts-grid">
-              <div>
-                <h3>🧩 Shape Controls</h3>
-                <ul>
-                  <li><b>Arrow Keys</b> — Move (Shift = 10px)</li>
-                  <li><b>R / Shift+R</b> — Rotate ±5°</li>
-                  <li><b>+</b> / <b>-</b> — Scale up/down</li>
-                  <li><b>X / Y</b> — Flip horizontally/vertically</li>
-                  <li><b>Delete</b> — Delete selected</li>
-                  <li><b>Ctrl+D</b> — Duplicate selected</li>
-                  <li><b>Ctrl+C / Ctrl+V</b> — Copy / Paste</li>
-                  <li><b>Shift / Ctrl+Click</b> — Multi-select</li>
-                </ul>
-              </div>
-            </div>
+            <ul>
+              <li><b>Arrow Keys</b> — Move (Shift = 10px)</li>
+              <li><b>R / Shift+R</b> — Rotate ±5°</li>
+              <li><b>+</b> / <b>-</b> — Scale up/down</li>
+              <li><b>X / Y</b> — Flip horizontally/vertically</li>
+              <li><b>Ctrl+D</b> — Duplicate selected</li>
+              <li><b>Ctrl+C / Ctrl+V</b> — Copy / Paste</li>
+              <li><b>Shift / Ctrl+Click</b> — Multi-select</li>
+            </ul>
             <button className="close-btn" onClick={() => setShowShortcuts(false)}>Close</button>
           </div>
         </div>
       )}
 
-      {/* Welcome Popup */}
       {showWelcome && (
         <div className="modal-overlay" onClick={() => setShowWelcome(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>🎨 Welcome to the Bonkverse Skin Editor!</h2>
-            <p style={{ fontSize: "15px", lineHeight: "1.6", color: "#ccc" }}>
-              Here’s what you can do right now:
-            </p>
-            <ul style={{ fontSize: "14px", lineHeight: "1.6", color: "#ccc" }}>
-              <li>🧩 <b>Add & Edit Shapes:</b> Click any shape to add it, then drag, rotate, or scale using handles.</li>
-              <li>🎨 <b>Change Colors:</b> Use the color picker to recolor selected shapes or the base body.</li>
-              <li>↕️ <b>Layer Controls:</b> Move shapes forward/back or reorder layers using the “Move Up/Down” buttons.</li>
-              <li>🖱️ <b>Multi-select:</b> Hold <b>Shift</b> or <b>Ctrl</b> to select and move multiple shapes at once.</li>
-              <li>📷 <b>Image Overlay:</b> Drag and drop an image onto the canvas to trace over it (adjust opacity or hide it anytime).</li>
-              <li>💾 <b>Export / Import:</b> Save your skin as JSON or load one back in.</li>
-              <li>👕 <b>Wear Skin:</b> Apply your current design to your Bonk.io account directly.</li>
-              <li>⚡ <b>Keyboard Shortcuts:</b> Move, rotate, scale, flip, duplicate, or delete using keys (press <b>Shift + ?</b> to view all).</li>
-              <li>🧭 <b>Camera:</b> Zoom or pan with your mouse wheel and drag empty space to move around.</li>
-            </ul>
-            <button
-              className="close-btn"
-              style={{ marginTop: "20px" }}
-              onClick={() => setShowWelcome(false)}
-            >
-              Got it!
-            </button>
+            <p>🧩 Add & edit shapes, 🎨 change colors, 🖱️ drag multiple at once, 💾 export or import, 👕 wear directly in Bonk.io!</p>
+            <button className="close-btn" onClick={() => setShowWelcome(false)}>Got it!</button>
           </div>
         </div>
       )}
-
     </div>
-);
+  );
+
 }
