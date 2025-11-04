@@ -628,6 +628,14 @@ export default function SkinEditor() {
 
       if (e.key === "Escape") clearSelection();
 
+      // --- Delete selected shapes ---
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        setShapes((prev) => prev.filter((_, idx) => !selectedIndices.includes(idx)));
+        setSelectedIndices([]);
+        return;
+      }
+
       // Ctrl-based commands
       if (e.ctrlKey || e.metaKey) {
         const first = shapes[selectedIndices[0]];
@@ -670,14 +678,6 @@ export default function SkinEditor() {
                 }
               } catch {}
             });
-            break;
-          case "Delete":
-          case "Backspace":
-            e.preventDefault();
-            setShapes((prev) =>
-              prev.filter((_, idx) => !selectedIndices.includes(idx))
-            );
-            clearSelection();
             break;
         }
       }
