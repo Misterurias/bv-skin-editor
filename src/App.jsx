@@ -575,7 +575,7 @@ function moveShapeDown(i) {
         id: s.id,
         scale: +(s.scale / BONK_SCALE_FACTOR).toFixed(6),
         angle: +s.angle.toFixed(6),
-        x: +(-((s.x - CANVAS_SIZE / 2) / BONK_X_POS_FACTOR)).toFixed(6),
+        x: +(((s.x - CANVAS_SIZE / 2) / BONK_X_POS_FACTOR)).toFixed(6),
         y: +(((s.y - CANVAS_SIZE / 2) / BONK_Y_POS_FACTOR)).toFixed(6),
         flipX: !!s.flipX,
         flipY: !!s.flipY,
