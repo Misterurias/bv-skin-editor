@@ -1,6 +1,5 @@
 // src/App.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { FiSettings } from "react-icons/fi";
 import "./index.css";
 import { flipLayers } from "./utils/flipLayers";
 
@@ -177,37 +176,12 @@ export default function SkinEditor() {
     return () => window.removeEventListener("keydown", handleUndoRedo);
   }, [history, future, shapes]);
 
-  // function updateShape(i, patch) {
-  //   setShapes((prev) =>
-  //     prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s))
-  //   );
-  // }
+
   function updateShape(i, patch) {
     commitShapes(
       shapes.map((s, idx) => (idx === i ? { ...s, ...patch } : s))
     );
   }
-
-
-//   function moveShapeUp(i) {
-//   setShapes((prev) => {
-//     if (i >= prev.length - 1) return prev; // already at top
-//     const newShapes = [...prev];
-//     [newShapes[i], newShapes[i + 1]] = [newShapes[i + 1], newShapes[i]];
-//     return newShapes;
-//   });
-//   setSelectedIndices([i + 1]);
-// }
-
-//   function moveShapeDown(i) {
-//     setShapes((prev) => {
-//       if (i <= 0) return prev; // already at bottom
-//       const newShapes = [...prev];
-//       [newShapes[i], newShapes[i - 1]] = [newShapes[i - 1], newShapes[i]];
-//       return newShapes;
-//     });
-//     setSelectedIndices([i - 1]);
-//   }
 
 function moveShapeUp(i) {
   if (i >= shapes.length - 1) return;
@@ -225,71 +199,7 @@ function moveShapeDown(i) {
   setSelectedIndices([i - 1]);
 }
 
-
-
   // ---------- Multi-select drag ----------
-  // function onMouseDownShape(e, i) {
-  //   e.stopPropagation();
-  //   const multi = e.shiftKey || e.metaKey || e.ctrlKey;
-  //   setSelectedIndices((prev) => {
-  //     if (multi) {
-  //       return prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i];
-  //     } else {
-  //       return [i];
-  //     }
-  //   });
-
-  //   const dragging = selectedIndices.includes(i) ? selectedIndices : [i];
-  //   const startX = e.clientX;
-  //   const startY = e.clientY;
-  //   const zoomAtDragStart = camera.zoom;
-  //   const originalPositions = dragging.map((idx) => ({
-  //     idx,
-  //     x: shapes[idx].x,
-  //     y: shapes[idx].y,
-  //   }));
-
-  //   dragRef.current = { dragging, startX, startY, zoom: zoomAtDragStart, originalPositions };
-
-  //   function onMove(ev) {
-  //     const ref = dragRef.current;
-  //     if (!ref || !ref.originalPositions) return;
-
-  //     const dx = (ev.clientX - ref.startX) / ref.zoom;
-  //     const dy = (ev.clientY - ref.startY) / ref.zoom;
-
-  //     setShapes((prev) =>
-  //       prev.map((s, idx) => {
-  //         const orig = ref.originalPositions.find((o) => o.idx === idx);
-  //         return orig ? { ...s, x: orig.x + dx, y: orig.y + dy } : s;
-  //       })
-  //     );
-  //   }
-
-  //   function onUp() {
-  //     const ref = dragRef.current;
-  //     if (!ref || !ref.originalPositions) return;
-
-  //     const dx = (window.event.clientX - ref.startX) / ref.zoom;
-  //     const dy = (window.event.clientY - ref.startY) / ref.zoom;
-
-  //     commitShapes(
-  //       shapes.map((s, idx) => {
-  //         const orig = ref.originalPositions.find((o) => o.idx === idx);
-  //         return orig ? { ...s, x: orig.x + dx, y: orig.y + dy } : s;
-  //       })
-  //     );
-
-  //     window.removeEventListener("mousemove", onMove);
-  //     window.removeEventListener("mouseup", onUp);
-  //     dragRef.current = null;
-  //   }
-
-
-  //   window.addEventListener("mousemove", onMove);
-  //   window.addEventListener("mouseup", onUp);
-  // }
-
   function onMouseDownShape(e, i) {
   e.stopPropagation();
   const multi = e.shiftKey || e.metaKey || e.ctrlKey;
@@ -357,65 +267,6 @@ function moveShapeDown(i) {
   window.addEventListener("mousemove", onMove);
   window.addEventListener("mouseup", onUp);
 }
-
-
-  // function onMouseDownHandle(e, i) {
-  //   e.stopPropagation();
-  //   setSelectedIndices([i]);
-
-  //   const shape = shapes[i];
-  //   const rect = e.currentTarget.closest("svg").getBoundingClientRect();
-  //   const zoom = camera.zoom;
-  //   const camX = camera.x;
-  //   const camY = camera.y;
-
-  //   const toWorld = (clientX, clientY) => {
-  //     const sx = clientX - rect.left;
-  //     const sy = clientY - rect.top;
-  //     return { x: sx / zoom - camX, y: sy / zoom - camY };
-  //   };
-
-  //   const start = toWorld(e.clientX, e.clientY);
-  //   const cx = shape.x;
-  //   const cy = shape.y;
-
-  //   const startVec = { x: start.x - cx, y: start.y - cy };
-  //   const startAngle = shape.angle;
-  //   const startScale = shape.scale;
-
-  //   handleRef.current = {
-  //     i,
-  //     cx,
-  //     cy,
-  //     startVec,
-  //     startAngle,
-  //     startScale,
-  //     zoom,
-  //     camX,
-  //     camY,
-  //   };
-
-  //   function onMove(ev) {
-  //     const cur = toWorld(ev.clientX, ev.clientY);
-  //     const curVec = { x: cur.x - handleRef.current.cx, y: cur.y - handleRef.current.cy };
-  //     const d0 = Math.hypot(handleRef.current.startVec.x, handleRef.current.startVec.y);
-  //     const d1 = Math.hypot(curVec.x, curVec.y);
-  //     const scale = Math.max(0.05, handleRef.current.startScale * (d1 / d0));
-  //     const a0 = Math.atan2(handleRef.current.startVec.y, handleRef.current.startVec.x);
-  //     const a1 = Math.atan2(curVec.y, curVec.x);
-  //     const deltaDeg = ((a1 - a0) * 180) / Math.PI;
-  //     updateShape(i, { scale, angle: handleRef.current.startAngle + deltaDeg });
-  //   }
-
-  //   function onUp() {
-  //     window.removeEventListener("mousemove", onMove);
-  //     window.removeEventListener("mouseup", onUp);
-  //     handleRef.current = null;
-  //   }
-
-  //   window.addEventListener("mousemove", onMove);
-  //   window.addEventListener("mouseup", onUp);
-  // }
 
   function onMouseDownHandle(e, i) {
   e.stopPropagation();
@@ -600,19 +451,6 @@ function moveShapeDown(i) {
       let parsed = JSON.parse(evt.target.result);
       // parsed = flipLayers(parsed);
       setBaseColor(`#${parsed.bc.toString(16).padStart(6, "0")}`);
-      // setShapes(
-      //   // parsed.layers.map((l) => ({
-      //   parsed.layers.slice().reverse().map((l) => ({
-      //     id: l.id,
-      //     scale: parseFloat(l.scale) * BONK_SCALE_FACTOR,
-      //     angle: parseFloat(l.angle),
-      //     x: parseFloat(l.x) * BONK_POS_FACTOR + CANVAS_SIZE / 2,
-      //     y: parseFloat(l.y) * BONK_POS_FACTOR + CANVAS_SIZE / 2,
-      //     flipX: !!l.flipX,
-      //     flipY: !!l.flipY,
-      //     color: `#${l.color.toString(16).padStart(6, "0")}`,
-      //   }))
-      // );
       commitShapes(
         parsed.layers.slice().reverse().map((l) => ({
           id: l.id,
@@ -717,50 +555,6 @@ function moveShapeDown(i) {
       if (selectedIndices.length === 0) return;
 
       const moveStep = e.shiftKey ? 10 : 1;
-      // setShapes((prev) => {
-      //   const newShapes = [...prev];
-      //   for (const idx of selectedIndices) {
-      //     const s = newShapes[idx];
-      //     switch (e.key) {
-      //       case "ArrowUp":
-      //         newShapes[idx] = { ...s, y: s.y - moveStep };
-      //         e.preventDefault();
-      //         break;
-      //       case "ArrowDown":
-      //         newShapes[idx] = { ...s, y: s.y + moveStep };
-      //         e.preventDefault();
-      //         break;
-      //       case "ArrowLeft":
-      //         newShapes[idx] = { ...s, x: s.x - moveStep };
-      //         e.preventDefault();
-      //         break;
-      //       case "ArrowRight":
-      //         newShapes[idx] = { ...s, x: s.x + moveStep };
-      //         e.preventDefault();
-      //         break;
-      //       case "r":
-      //         newShapes[idx] = { ...s, angle: s.angle + 5 };
-      //         break;
-      //       case "R":
-      //         newShapes[idx] = { ...s, angle: s.angle - 5 };
-      //         break;
-      //       case "x":
-      //         newShapes[idx] = { ...s, flipX: !s.flipX };
-      //         break;
-      //       case "y":
-      //         newShapes[idx] = { ...s, flipY: !s.flipY };
-      //         break;
-      //       case "+":
-      //       case "=":
-      //         newShapes[idx] = { ...s, scale: s.scale * 1.05 };
-      //         break;
-      //       case "-":
-      //         newShapes[idx] = { ...s, scale: s.scale * 0.95 };
-      //         break;
-      //     }
-      //   }
-      //   return newShapes;
-      // });
       const newShapes = shapes.map((s, idx) => {
       if (!selectedIndices.includes(idx)) return s;
       const moveStep = e.shiftKey ? 10 : 1;
@@ -802,14 +596,6 @@ function moveShapeDown(i) {
             break;
           case "d":
             e.preventDefault();
-            // setShapes((prev) => [
-            //   ...prev,
-            //   ...selectedIndices.map((i) => ({
-            //     ...prev[i],
-            //     x: prev[i].x + 10,
-            //     y: prev[i].y + 10,
-            //   })),
-            // ]);
             commitShapes([
               ...shapes,
               ...selectedIndices.map((i) => ({
@@ -831,14 +617,6 @@ function moveShapeDown(i) {
               try {
                 const pasted = JSON.parse(text);
                 if (Array.isArray(pasted)) {
-                  // setShapes((prev) => [
-                  //   ...prev,
-                  //   ...pasted.map((p) => ({
-                  //     ...p,
-                  //     x: p.x + 10,
-                  //     y: p.y + 10,
-                  //   })),
-                  // ]);
                   commitShapes([
                     ...shapes,
                     ...pasted.map((p) => ({
