@@ -119,22 +119,6 @@ export default function SkinEditor() {
     setShapes(newShapes);
   }
 
-  // ---------- Shape logic ----------
-  // function addShape(id, opts = {}) {
-  //   const newShape = {
-  //     id,
-  //     x: CANVAS_SIZE / 2,
-  //     y: CANVAS_SIZE / 2,
-  //     angle: 0,
-  //     scale: 1,
-  //     flipX: false,
-  //     flipY: false,
-  //     color: "#000000",
-  //     ...opts,
-  //   };
-  //   setShapes((prev) => [...prev, newShape]);
-  //   setSelectedIndices([shapes.length]);
-  // }
   function addShape(id, opts = {}) {
     const newShape = {
       id,
@@ -193,31 +177,54 @@ export default function SkinEditor() {
     return () => window.removeEventListener("keydown", handleUndoRedo);
   }, [history, future, shapes]);
 
+  // function updateShape(i, patch) {
+  //   setShapes((prev) =>
+  //     prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s))
+  //   );
+  // }
   function updateShape(i, patch) {
-    setShapes((prev) =>
-      prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s))
+    commitShapes(
+      shapes.map((s, idx) => (idx === i ? { ...s, ...patch } : s))
     );
   }
 
-  function moveShapeUp(i) {
-  setShapes((prev) => {
-    if (i >= prev.length - 1) return prev; // already at top
-    const newShapes = [...prev];
-    [newShapes[i], newShapes[i + 1]] = [newShapes[i + 1], newShapes[i]];
-    return newShapes;
-  });
+
+//   function moveShapeUp(i) {
+//   setShapes((prev) => {
+//     if (i >= prev.length - 1) return prev; // already at top
+//     const newShapes = [...prev];
+//     [newShapes[i], newShapes[i + 1]] = [newShapes[i + 1], newShapes[i]];
+//     return newShapes;
+//   });
+//   setSelectedIndices([i + 1]);
+// }
+
+//   function moveShapeDown(i) {
+//     setShapes((prev) => {
+//       if (i <= 0) return prev; // already at bottom
+//       const newShapes = [...prev];
+//       [newShapes[i], newShapes[i - 1]] = [newShapes[i - 1], newShapes[i]];
+//       return newShapes;
+//     });
+//     setSelectedIndices([i - 1]);
+//   }
+
+function moveShapeUp(i) {
+  if (i >= shapes.length - 1) return;
+  const newShapes = [...shapes];
+  [newShapes[i], newShapes[i + 1]] = [newShapes[i + 1], newShapes[i]];
+  commitShapes(newShapes);
   setSelectedIndices([i + 1]);
 }
 
-  function moveShapeDown(i) {
-    setShapes((prev) => {
-      if (i <= 0) return prev; // already at bottom
-      const newShapes = [...prev];
-      [newShapes[i], newShapes[i - 1]] = [newShapes[i - 1], newShapes[i]];
-      return newShapes;
-    });
-    setSelectedIndices([i - 1]);
-  }
+function moveShapeDown(i) {
+  if (i <= 0) return;
+  const newShapes = [...shapes];
+  [newShapes[i], newShapes[i - 1]] = [newShapes[i - 1], newShapes[i]];
+  commitShapes(newShapes);
+  setSelectedIndices([i - 1]);
+}
+
 
 
   // ---------- Multi-select drag ----------
@@ -244,9 +251,30 @@ export default function SkinEditor() {
 
     dragRef.current = { dragging, startX, startY, zoom: zoomAtDragStart, originalPositions };
 
+    // function onMove(ev) {
+    //   const ref = dragRef.current;
+    //   if (!ref || !ref.originalPositions) return; // ✅ Guard
+
+    //   const dx = (ev.clientX - ref.startX) / ref.zoom;
+    //   const dy = (ev.clientY - ref.startY) / ref.zoom;
+
+    //   // setShapes((prev) =>
+    //   //   prev.map((s, idx) => {
+    //   //     const orig = ref.originalPositions.find((o) => o.idx === idx);
+    //   //     return orig ? { ...s, x: orig.x + dx, y: orig.y + dy } : s;
+    //   //   })
+    //   // );
+    //   commitShapes(
+    //     shapes.map((s, idx) => {
+    //       const orig = dragRef.current.originalPositions.find((o) => o.idx === idx);
+    //       return orig ? { ...s, x: orig.x + dx, y: orig.y + dy } : s;
+    //     })
+    //   );
+
+    // }
     function onMove(ev) {
       const ref = dragRef.current;
-      if (!ref || !ref.originalPositions) return; // ✅ Guard
+      if (!ref || !ref.originalPositions) return;
 
       const dx = (ev.clientX - ref.startX) / ref.zoom;
       const dy = (ev.clientY - ref.startY) / ref.zoom;
@@ -260,10 +288,18 @@ export default function SkinEditor() {
     }
 
     function onUp() {
+      commitShapes(shapes); // ✅ snapshot final move for undo/redo
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
       dragRef.current = null;
     }
+
+
+    // function onUp() {
+    //   window.removeEventListener("mousemove", onMove);
+    //   window.removeEventListener("mouseup", onUp);
+    //   dragRef.current = null;
+    // }
 
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
@@ -420,8 +456,20 @@ export default function SkinEditor() {
       let parsed = JSON.parse(evt.target.result);
       // parsed = flipLayers(parsed);
       setBaseColor(`#${parsed.bc.toString(16).padStart(6, "0")}`);
-      setShapes(
-        // parsed.layers.map((l) => ({
+      // setShapes(
+      //   // parsed.layers.map((l) => ({
+      //   parsed.layers.slice().reverse().map((l) => ({
+      //     id: l.id,
+      //     scale: parseFloat(l.scale) * BONK_SCALE_FACTOR,
+      //     angle: parseFloat(l.angle),
+      //     x: parseFloat(l.x) * BONK_POS_FACTOR + CANVAS_SIZE / 2,
+      //     y: parseFloat(l.y) * BONK_POS_FACTOR + CANVAS_SIZE / 2,
+      //     flipX: !!l.flipX,
+      //     flipY: !!l.flipY,
+      //     color: `#${l.color.toString(16).padStart(6, "0")}`,
+      //   }))
+      // );
+      commitShapes(
         parsed.layers.slice().reverse().map((l) => ({
           id: l.id,
           scale: parseFloat(l.scale) * BONK_SCALE_FACTOR,
@@ -439,62 +487,6 @@ export default function SkinEditor() {
   }
 
   // ---------- Shape Renderer ----------
-  // function Shape({ s, i }) {
-  //   const [meta, setMeta] = useState(null);
-  //   useEffect(() => {
-  //     let alive = true;
-  //     (async () => {
-  //       const m = await loadAndNormalizeSvg(s.id);
-  //       if (alive) setMeta(m);
-  //     })();
-  //     return () => (alive = false);
-  //   }, [s.id]);
-
-  //   const tr = useMemo(() => {
-  //     const sx = s.flipX ? -s.scale : s.scale;
-  //     const sy = s.flipY ? -s.scale : s.scale;
-  //     return `translate(${s.x},${s.y}) rotate(${s.angle}) scale(${sx},${sy})`;
-  //   }, [s]);
-
-  //   const w = meta?.w ?? 50;
-  //   const h = meta?.h ?? 50;
-  //   const HANDLE = 12;
-
-  //   return (
-  //     <g
-  //       transform={tr}
-  //       onMouseDown={(e) => onMouseDownShape(e, i)}
-  //       style={{ color: s.color }}
-  //       pointerEvents="bounding-box"
-  //     >
-  //       <g dangerouslySetInnerHTML={{ __html: meta?.html || "" }} fill={s.color} stroke={s.color} />
-  //       {isSelected(i) && (
-  //         <>
-  //           <rect
-  //             x={-w / 2}
-  //             y={-h / 2}
-  //             width={w}
-  //             height={h}
-  //             fill="none"
-  //             stroke="lime"
-  //             strokeWidth={2}
-  //             pointerEvents="none"
-  //           />
-  //           <rect
-  //             x={w / 2 - HANDLE / 2}
-  //             y={-h / 2 - HANDLE / 2}
-  //             width={HANDLE}
-  //             height={HANDLE}
-  //             fill="white"
-  //             stroke="black"
-  //             onMouseDown={(e) => onMouseDownHandle(e, i)}
-  //             style={{ cursor: "nwse-resize" }}
-  //           />
-  //         </>
-  //       )}
-  //     </g>
-  //   );
-  // }
   function Shape({ s, i }) {
   const [meta, setMeta] = useState(null);
 
@@ -581,57 +573,77 @@ export default function SkinEditor() {
       if (selectedIndices.length === 0) return;
 
       const moveStep = e.shiftKey ? 10 : 1;
-      setShapes((prev) => {
-        const newShapes = [...prev];
-        for (const idx of selectedIndices) {
-          const s = newShapes[idx];
-          switch (e.key) {
-            case "ArrowUp":
-              newShapes[idx] = { ...s, y: s.y - moveStep };
-              e.preventDefault();
-              break;
-            case "ArrowDown":
-              newShapes[idx] = { ...s, y: s.y + moveStep };
-              e.preventDefault();
-              break;
-            case "ArrowLeft":
-              newShapes[idx] = { ...s, x: s.x - moveStep };
-              e.preventDefault();
-              break;
-            case "ArrowRight":
-              newShapes[idx] = { ...s, x: s.x + moveStep };
-              e.preventDefault();
-              break;
-            case "r":
-              newShapes[idx] = { ...s, angle: s.angle + 5 };
-              break;
-            case "R":
-              newShapes[idx] = { ...s, angle: s.angle - 5 };
-              break;
-            case "x":
-              newShapes[idx] = { ...s, flipX: !s.flipX };
-              break;
-            case "y":
-              newShapes[idx] = { ...s, flipY: !s.flipY };
-              break;
-            case "+":
-            case "=":
-              newShapes[idx] = { ...s, scale: s.scale * 1.05 };
-              break;
-            case "-":
-              newShapes[idx] = { ...s, scale: s.scale * 0.95 };
-              break;
-          }
-        }
-        return newShapes;
-      });
+      // setShapes((prev) => {
+      //   const newShapes = [...prev];
+      //   for (const idx of selectedIndices) {
+      //     const s = newShapes[idx];
+      //     switch (e.key) {
+      //       case "ArrowUp":
+      //         newShapes[idx] = { ...s, y: s.y - moveStep };
+      //         e.preventDefault();
+      //         break;
+      //       case "ArrowDown":
+      //         newShapes[idx] = { ...s, y: s.y + moveStep };
+      //         e.preventDefault();
+      //         break;
+      //       case "ArrowLeft":
+      //         newShapes[idx] = { ...s, x: s.x - moveStep };
+      //         e.preventDefault();
+      //         break;
+      //       case "ArrowRight":
+      //         newShapes[idx] = { ...s, x: s.x + moveStep };
+      //         e.preventDefault();
+      //         break;
+      //       case "r":
+      //         newShapes[idx] = { ...s, angle: s.angle + 5 };
+      //         break;
+      //       case "R":
+      //         newShapes[idx] = { ...s, angle: s.angle - 5 };
+      //         break;
+      //       case "x":
+      //         newShapes[idx] = { ...s, flipX: !s.flipX };
+      //         break;
+      //       case "y":
+      //         newShapes[idx] = { ...s, flipY: !s.flipY };
+      //         break;
+      //       case "+":
+      //       case "=":
+      //         newShapes[idx] = { ...s, scale: s.scale * 1.05 };
+      //         break;
+      //       case "-":
+      //         newShapes[idx] = { ...s, scale: s.scale * 0.95 };
+      //         break;
+      //     }
+      //   }
+      //   return newShapes;
+      // });
+      const newShapes = shapes.map((s, idx) => {
+      if (!selectedIndices.includes(idx)) return s;
+      const moveStep = e.shiftKey ? 10 : 1;
+      switch (e.key) {
+        case "ArrowUp": return { ...s, y: s.y - moveStep };
+        case "ArrowDown": return { ...s, y: s.y + moveStep };
+        case "ArrowLeft": return { ...s, x: s.x - moveStep };
+        case "ArrowRight": return { ...s, x: s.x + moveStep };
+        case "r": return { ...s, angle: s.angle + 5 };
+        case "R": return { ...s, angle: s.angle - 5 };
+        case "x": return { ...s, flipX: !s.flipX };
+        case "y": return { ...s, flipY: !s.flipY };
+        case "+": case "=": return { ...s, scale: s.scale * 1.05 };
+        case "-": return { ...s, scale: s.scale * 0.95 };
+        default: return s;
+      }
+    });
+    commitShapes(newShapes);
+
 
       if (e.key === "Escape") clearSelection();
 
       // --- Delete selected shapes ---
       if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
-        setShapes((prev) => prev.filter((_, idx) => !selectedIndices.includes(idx)));
+        // setShapes((prev) => prev.filter((_, idx) => !selectedIndices.includes(idx)));
+        commitShapes(shapes.filter((_, idx) => !selectedIndices.includes(idx)));
         setSelectedIndices([]);
         return;
       }
@@ -646,12 +658,20 @@ export default function SkinEditor() {
             break;
           case "d":
             e.preventDefault();
-            setShapes((prev) => [
-              ...prev,
+            // setShapes((prev) => [
+            //   ...prev,
+            //   ...selectedIndices.map((i) => ({
+            //     ...prev[i],
+            //     x: prev[i].x + 10,
+            //     y: prev[i].y + 10,
+            //   })),
+            // ]);
+            commitShapes([
+              ...shapes,
               ...selectedIndices.map((i) => ({
-                ...prev[i],
-                x: prev[i].x + 10,
-                y: prev[i].y + 10,
+                ...shapes[i],
+                x: shapes[i].x + 10,
+                y: shapes[i].y + 10,
               })),
             ]);
             break;
@@ -667,8 +687,16 @@ export default function SkinEditor() {
               try {
                 const pasted = JSON.parse(text);
                 if (Array.isArray(pasted)) {
-                  setShapes((prev) => [
-                    ...prev,
+                  // setShapes((prev) => [
+                  //   ...prev,
+                  //   ...pasted.map((p) => ({
+                  //     ...p,
+                  //     x: p.x + 10,
+                  //     y: p.y + 10,
+                  //   })),
+                  // ]);
+                  commitShapes([
+                    ...shapes,
                     ...pasted.map((p) => ({
                       ...p,
                       x: p.x + 10,
@@ -1575,13 +1603,32 @@ export default function SkinEditor() {
           </div>
         </div>
       )}
-
+      {/* Welcome Popup */}
       {showWelcome && (
         <div className="modal-overlay" onClick={() => setShowWelcome(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>🎨 Welcome to the Bonkverse Skin Editor!</h2>
-            <p>🧩 Add & edit shapes, 🎨 change colors, 🖱️ drag multiple at once, 💾 export or import, 👕 wear directly in Bonk.io!</p>
-            <button className="close-btn" onClick={() => setShowWelcome(false)}>Got it!</button>
+            <p style={{ fontSize: "15px", lineHeight: "1.6", color: "#ccc" }}>
+              Here’s what you can do right now:
+            </p>
+            <ul style={{ fontSize: "14px", lineHeight: "1.6", color: "#ccc" }}>
+              <li>🧩 <b>Add & Edit Shapes:</b> Click any shape to add it, then drag, rotate, or scale using handles.</li>
+              <li>🎨 <b>Change Colors:</b> Use the color picker to recolor selected shapes or the base body.</li>
+              <li>↕️ <b>Layer Controls:</b> Move shapes forward/back or reorder layers using the “Move Up/Down” buttons.</li>
+              <li>🖱️ <b>Multi-select:</b> Hold <b>Shift</b> or <b>Ctrl</b> to select and move multiple shapes at once.</li>
+              <li>📷 <b>Image Overlay:</b> Drag and drop an image onto the canvas to trace over it (adjust opacity or hide it anytime).</li>
+              <li>💾 <b>Export / Import:</b> Save your skin as JSON or load one back in.</li>
+              <li>👕 <b>Wear Skin:</b> Apply your current design to your Bonk.io account directly.</li>
+              <li>⚡ <b>Keyboard Shortcuts:</b> Move, rotate, scale, flip, duplicate, or delete using keys (press <b>Shift + ?</b> to view all).</li>
+              <li>🧭 <b>Camera:</b> Zoom or pan with your mouse wheel and drag empty space to move around.</li>
+            </ul>
+            <button
+              className="close-btn"
+              style={{ marginTop: "20px" }}
+              onClick={() => setShowWelcome(false)}
+            >
+              Got it!
+            </button>
           </div>
         </div>
       )}
