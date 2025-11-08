@@ -63,8 +63,7 @@ async function loadAndNormalizeSvg(id) {
   const cx = minX + vbW / 2;
   const cy = minY + vbH / 2;
   const inner = root.innerHTML;
-  // const html = `<g transform="translate(${-cx},${-cy})">${inner}</g>`;
-  const html = `<g transform="translate(-25, -25)">${inner}</g>`;
+  const html = `<g transform="translate(${-cx},${-cy})">${inner}</g>`;
   const meta = { html, w: vbW, h: vbH };
   svgCache.set(id, meta);
   return meta;
