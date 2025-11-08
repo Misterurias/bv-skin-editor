@@ -670,25 +670,27 @@ function moveShapeDown(i) {
         {/* Selection box + handle */}
         {isSelected(i) && !s.locked && (
           <>
+            {/* Glow outline (outer darker edge) */}
+            <rect
+              x={-w / 2 - 1}
+              y={-h / 2 - 1}
+              width={w + 2}
+              height={h + 2}
+              fill="none"
+              stroke="rgba(0, 0, 0, 0.6)"
+              strokeWidth={4}
+              pointerEvents="none"
+            />
+            {/* Inner bright edge */}
             <rect
               x={-w / 2}
               y={-h / 2}
               width={w}
               height={h}
               fill="none"
-              stroke="lime"
+              stroke="rgba(0, 255, 200, 0.9)"
               strokeWidth={2}
               pointerEvents="none"
-            />
-            <rect
-              x={w / 2 - HANDLE / 2}
-              y={-h / 2 - HANDLE / 2}
-              width={HANDLE}
-              height={HANDLE}
-              fill="white"
-              stroke="black"
-              style={{ cursor: "nwse-resize" }}
-              onMouseDown={(e) => onMouseDownHandle(e, i)}
             />
           </>
         )}
@@ -1411,10 +1413,18 @@ function moveShapeDown(i) {
           )}
 
           {/* Shapes */}
+          {/* Non-selected shapes (clipped) */}
           <g clipPath="url(#playerClip)">
-            {shapes.map((s, i) => (
-              <Shape key={i} s={s} i={i} />
-            ))}
+            {shapes.map((s, i) =>
+              !isSelected(i) ? <Shape key={i} s={s} i={i} /> : null
+            )}
+          </g>
+
+          {/* Selected shapes (unclipped, always visible) */}
+          <g>
+            {shapes.map((s, i) =>
+              isSelected(i) ? <Shape key={`${i}-sel`} s={s} i={i} /> : null
+            )}
           </g>
         </g>
       </svg>
