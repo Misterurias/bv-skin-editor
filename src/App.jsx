@@ -235,7 +235,12 @@ export default function SkinEditor() {
   const overlayDrag = useRef(null);
 
 
-  const [camera, setCamera] = useState({ x: 0, y: 0, zoom: 1 });
+  const [camera, setCamera] = useState({
+    x: CANVAS_SIZE / -2, // negative half width to center it
+    y: CANVAS_SIZE / -2, // negative half height
+    zoom: 1,
+  });
+
 
   const dragRef = useRef(null);
   const handleRef = useRef(null);
@@ -601,8 +606,13 @@ function moveShapeDown(i) {
   }, []);
 
   function resetCamera() {
-    setCamera({ x: 0, y: 0, zoom: 1 });
-  }
+  setCamera({
+    x: CANVAS_SIZE / -2,
+    y: CANVAS_SIZE / -2,
+    zoom: 1,
+  });
+}
+
 
   // ---------- Export / Import ----------
 

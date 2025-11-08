@@ -82,12 +82,6 @@ html, body {
 }
 
 
-.editor-canvas g {
-  will-change: transform;
-}
-
-
-
 /* ===== Top Tools Bar ===== */
 .tools-bar {
   position: absolute;
