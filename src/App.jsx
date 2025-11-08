@@ -236,10 +236,11 @@ export default function SkinEditor() {
 
 
   const [camera, setCamera] = useState({
-    x: CANVAS_SIZE / -2, // negative half width to center it
-    y: CANVAS_SIZE / -2, // negative half height
+    x: 0,
+    y: 0,
     zoom: 1,
   });
+
 
 
   const dragRef = useRef(null);
