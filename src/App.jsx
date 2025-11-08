@@ -692,6 +692,20 @@ function moveShapeDown(i) {
               strokeWidth={2}
               pointerEvents="none"
             />
+            {/* === Single top-right corner handle === */}
+            <circle
+              cx={w / 2}
+              cy={-h / 2}
+              r={5}
+              fill="#00ffcc"
+              stroke="#003333"
+              strokeWidth={1.5}
+              style={{
+                cursor: "nesw-resize",
+                pointerEvents: "all", // ensures it's clickable
+              }}
+              onMouseDown={(e) => onHandleMouseDown(e, i, "topright")}
+            />
           </>
         )}
       </g>
