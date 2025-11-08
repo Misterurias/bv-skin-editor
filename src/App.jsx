@@ -11,7 +11,7 @@ const BALL_RADIUS_PX = CANVAS_SIZE / 2;
 const PX_PER_UNIT = BALL_RADIUS_PX / BALL_RADIUS_UNITS;
 
 const BONK_SCALE_FACTOR = 21.5;
-const BONK_X_POS_FACTOR = 21.2;
+const BONK_X_POS_FACTOR = 21.5;
 const BONK_Y_POS_FACTOR = 21.5;
 
 const svgCache = new Map();
@@ -576,7 +576,7 @@ function moveShapeDown(i) {
         scale: +(s.scale / BONK_SCALE_FACTOR).toFixed(6),
         angle: +s.angle.toFixed(6),
         x: +(((s.x - CANVAS_SIZE / 2) / BONK_X_POS_FACTOR)).toFixed(6),
-        y: +(((s.y - CANVAS_SIZE / 2) / BONK_Y_POS_FACTOR)).toFixed(6),
+        y: -(((s.y - CANVAS_SIZE / 2) / BONK_Y_POS_FACTOR)).toFixed(6),
         flipX: !!s.flipX,
         flipY: !!s.flipY,
         color: parseInt(s.color.replace("#", ""), 16),
@@ -607,7 +607,7 @@ function moveShapeDown(i) {
           scale: parseFloat(l.scale) * BONK_SCALE_FACTOR,
           angle: parseFloat(l.angle),
           x: parseFloat(l.x) * BONK_X_POS_FACTOR + CANVAS_SIZE / 2,
-          y: parseFloat(l.y) * BONK_Y_POS_FACTOR + CANVAS_SIZE / 2,
+          y: -(parseFloat(l.y) * BONK_Y_POS_FACTOR) + CANVAS_SIZE / 2,
           flipX: !!l.flipX,
           flipY: !!l.flipY,
           color: `#${l.color.toString(16).padStart(6, "0")}`,
