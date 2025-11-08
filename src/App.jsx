@@ -602,12 +602,13 @@ function moveShapeDown(i) {
   }, []);
 
   function resetCamera() {
-  setCamera({
-    x: CANVAS_SIZE / -2,
-    y: CANVAS_SIZE / -2,
-    zoom: 1,
-  });
-}
+    setCamera({
+      x: 0,
+      y: 0,
+      zoom: 1,
+    });
+  }
+
 
 
   // ---------- Export / Import ----------
