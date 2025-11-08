@@ -12,7 +12,7 @@ const PX_PER_UNIT = BALL_RADIUS_PX / BALL_RADIUS_UNITS;
 
 const BONK_SCALE_FACTOR = 24.24;
 const BONK_X_POS_FACTOR = 22.26;
-const BONK_Y_POS_FACTOR = 21.26;
+const BONK_Y_POS_FACTOR = 21;
 
 const svgCache = new Map();
 
