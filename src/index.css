@@ -62,23 +62,30 @@ html, body {
   justify-content: center;
   background-color: #0d141c;
   overflow: hidden;
+  cursor: grab;
 }
 
 /* Canvas fills entire screen */
 .editor-canvas {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(80vmin, 700px);
-  height: min(80vmin, 700px);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   background: #0d141c;
-  border: none;
-  display: block;
-  box-shadow: 0 0 20px rgba(0, 230, 195, 0.3);
   cursor: grab;
-  aspect-ratio: 1 / 1;
+  border: none;
+  box-shadow: none;
 }
+
+.editor-container:active {
+  cursor: grabbing;
+}
+
+
+.editor-canvas g {
+  will-change: transform;
+}
+
 
 
 /* ===== Top Tools Bar ===== */
