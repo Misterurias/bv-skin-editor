@@ -181,31 +181,34 @@ html, body {
 }
 
 /* Layers Panel (below right button) */
-.panel-right {
+/* Shape Properties (now ABOVE Layers) */
+.shape-props-panel {
   top: 60px;
   right: 16px;
-  width: 240px;
-  height: 40%;
+  width: 420px;             /* wide enough for the color picker */
+  height: 55%;              /* taller for comfortable editing */
   overflow-y: auto;
   transform: translateX(120%);
+  transition: transform 0.3s ease;
+}
+.shape-props-panel.open {
+  transform: translateX(0);
+}
+
+/* Layers Panel (now BELOW Shape Properties) */
+.panel-right {
+  top: calc(60px + 55% + 16px); /* starts below the shape panel */
+  right: 16px;
+  width: 420px;
+  height: 25%;                 /* smaller to balance layout */
+  overflow-y: auto;
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
 }
 .panel-right.open {
   transform: translateX(0);
 }
 
-/* Shape Properties appear below Layers */
-.shape-props-panel {
-  top: calc(60px + 45%);
-  right: 16px;
-  width: 420px;            /* wider for color picker */
-  max-height: 55%;
-  overflow-y: auto;
-  transform: translateY(120%);
-}
-
-.shape-props-panel.open {
-  transform: translateY(0);
-}
 
 /* Neon text inputs (fix typing & appearance) */
 .neon-input {
