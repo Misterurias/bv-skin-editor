@@ -86,9 +86,6 @@ function ShapeProperties({ shape, index, shapes, updateShape, moveShapeUp, moveS
   return (
     <div className="shape-props-form">
       <div className="shape-color-section">
-        <label style={{ color: "#00ffcc", fontWeight: "bold", marginBottom: "4px" }}>
-          Color:
-        </label>
         <ColorPicker
           color={shape.color}
           onChange={(newColor) => updateShape(index, { color: newColor })}
