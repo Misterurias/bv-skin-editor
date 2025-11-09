@@ -197,7 +197,7 @@ html, body {
 .shape-props-panel {
   top: calc(60px + 45%);
   right: 16px;
-  width: 300px;            /* wider for color picker */
+  width: 420px;            /* wider for color picker */
   max-height: 55%;
   overflow-y: auto;
   transform: translateY(120%);
