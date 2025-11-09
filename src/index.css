@@ -183,10 +183,11 @@ html, body {
 /* ===== Shape Properties Panel (TOP-RIGHT) ===== */
 .shape-props-panel {
   position: absolute;
-  top: 70px;                 /* moved up closer to the top */
+  top: 15px;                 /* moved up closer to the top */
   right: 16px;
   width: 420px;
   height: 50%;               /* adjusted for better spacing */
+  padding: 15px;
   overflow-y: auto;
   background: rgba(26, 39, 51, 0.95);
   border: 2px solid #009688;
@@ -215,7 +216,7 @@ html, body {
   position: absolute;
   top: calc(70px + 50% + 60px); /* below button with spacing */
   right: 16px;
-  width: 420px;
+  width: 260px;
   height: 30%;
   overflow-y: auto;
   background: rgba(26, 39, 51, 0.95);
