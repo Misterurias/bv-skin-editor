@@ -214,6 +214,14 @@ export default function SkinEditor() {
   const [history, setHistory] = useState([]);
   const [future, setFuture] = useState([]);
 
+  // ✅ Preload all SVGs once so they never flicker during dragging
+  useEffect(() => {
+    for (let i = 1; i <= TOTAL_SHAPES; i++) {
+      loadAndNormalizeSvg(i);
+    }
+  }, []);
+
+
   useEffect(() => {
     const seen = localStorage.getItem("seenWelcomePopup");
     if (!seen) {
@@ -695,88 +703,79 @@ function moveShapeDown(i) {
   }
 
   // ---------- Shape Renderer ----------
-  function Shape({ s, i }) {
-  const [meta, setMeta] = useState(null);
+  const Shape = React.memo(function Shape({ s, i }) {
 
-  // Load SVG for the shape
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      const m = await loadAndNormalizeSvg(s.id);
-      if (alive) setMeta(m);
-    })();
-    return () => (alive = false);
-  }, [s.id]);
+    const meta = svgCache.get(s.id);
+    if (!meta) return null; // skip render until SVG cache is ready
 
-  // --- Hide support ---
-  if (s.hidden) return null;
+    // --- Hide support ---
+    if (s.hidden) return null;
 
-  const tr = useMemo(() => {
-    const sx = s.flipX ? -s.scale : s.scale;
-    const sy = s.flipY ? -s.scale : s.scale;
-    return `translate(${s.x},${s.y}) rotate(${s.angle}) scale(${sx},${sy})`;
-  }, [s]);
+    const tr = useMemo(() => {
+      const sx = s.flipX ? -s.scale : s.scale;
+      const sy = s.flipY ? -s.scale : s.scale;
+      return `translate(${s.x},${s.y}) rotate(${s.angle}) scale(${sx},${sy})`;
+    }, [s]);
 
-  const w = meta?.w ?? 50;
-  const h = meta?.h ?? 50;
-  const HANDLE = 12;
+    const w = meta?.w ?? 50;
+    const h = meta?.h ?? 50;
+    const HANDLE = 12;
 
-  return (
-      <g
-        transform={tr}
-        // prevent selecting or moving locked shapes
-        onMouseDown={(e) => {
-          if (s.locked) return; // skip drag logic, but allow pointer hit
-          onMouseDownShape(e, i);
-        }}
-        style={{
-          color: s.color,
-          opacity: s.locked ? 0.5 : 1,
-          cursor: s.locked ? "not-allowed" : "pointer",
-          pointerEvents: s.locked ? "none" : "bounding-box", // ✅ key change here
-        }}
-      >
-        {/* SVG content */}
+    return (
         <g
-          dangerouslySetInnerHTML={{ __html: meta?.html || "" }}
-          fill={s.color}
-          stroke={s.color}
-        />
+          transform={tr}
+          // prevent selecting or moving locked shapes
+          onMouseDown={(e) => {
+            if (s.locked) return; // skip drag logic, but allow pointer hit
+            onMouseDownShape(e, i);
+          }}
+          style={{
+            color: s.color,
+            opacity: s.locked ? 0.5 : 1,
+            cursor: s.locked ? "not-allowed" : "pointer",
+            pointerEvents: s.locked ? "none" : "bounding-box", // ✅ key change here
+          }}
+        >
+          {/* SVG content */}
+          <g
+            dangerouslySetInnerHTML={{ __html: meta?.html || "" }}
+            fill={s.color}
+            stroke={s.color}
+          />
 
-        {/* Selection box + handle */}
-        {isSelected(i) && !s.locked && (
-          <>
-            {/* Glow outline (outer darker edge) */}
-            <rect
-              x={-w / 2 - 1}
-              y={-h / 2 - 1}
-              width={w + 2}
-              height={h + 2}
-              fill="none"
-              stroke="rgba(0, 255, 200, 0.5)" // teal glow, 50% opacity
-              strokeWidth={2}
-              pointerEvents="none"
-            />
-            {/* === Single top-right corner handle === */}
-            <circle
-              cx={w / 2}
-              cy={-h / 2}
-              r={5}
-              fill="#00ffcc"
-              stroke="#003333"
-              strokeWidth={1.5}
-              style={{
-                cursor: "nesw-resize",
-                pointerEvents: "all", // ensures it's clickable
-              }}
-              onMouseDown={(e) => onMouseDownHandle(e, i, "topright")}
-            />
-          </>
-        )}
-      </g>
-    );
-
-}
+          {/* Selection box + handle */}
+          {isSelected(i) && !s.locked && (
+            <>
+              {/* Glow outline (outer darker edge) */}
+              <rect
+                x={-w / 2 - 1}
+                y={-h / 2 - 1}
+                width={w + 2}
+                height={h + 2}
+                fill="none"
+                stroke="rgba(0, 255, 200, 0.5)" // teal glow, 50% opacity
+                strokeWidth={2}
+                pointerEvents="none"
+              />
+              {/* === Single top-right corner handle === */}
+              <circle
+                cx={w / 2}
+                cy={-h / 2}
+                r={5}
+                fill="#00ffcc"
+                stroke="#003333"
+                strokeWidth={1.5}
+                style={{
+                  cursor: "nesw-resize",
+                  pointerEvents: "all", // ensures it's clickable
+                }}
+                onMouseDown={(e) => onMouseDownHandle(e, i, "topright")}
+              />
+            </>
+          )}
+        </g>
+      );
+    });
 
 
   // ---------- Keyboard Shortcuts ----------
