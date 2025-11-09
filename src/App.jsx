@@ -1024,21 +1024,24 @@ export default function SkinEditor() {
           )}
 
           {/* Shapes */}
-          {/* --- Clipped shapes (everything not selected) --- */}
+          {/* Shapes Rendering Logic */}
+          {/* --- Always clip non-selected shapes --- */}
           <g clipPath="url(#playerClip)">
-            {shapes.map((s, i) =>
-              !isSelected(i) ? <Shape key={i} s={s} i={i} /> : null
-            )}
+            {shapes.map((s, i) => (
+              <Shape key={i} s={s} i={i} />
+            ))}
           </g>
 
-          {/* --- Unclipped selected shapes on top (fully visible) --- */}
+          {/* --- Selected shapes re-rendered on top (unclipped) only when: --- */}
+          {/*     1. Mouse is inside canvas (editing mode) */}
+          {/*     2. Not currently reordering layers */}
           {mouseInsideCanvas && !isReordering &&
             shapes.map((s, i) =>
               isSelected(i) ? <Shape key={`${i}-sel`} s={s} i={i} /> : null
             )}
-          </g>
+        </g>
         </svg>
-        
+
       {/* === Floating Toggles === */}
       <button className="dock-btn left" onClick={() => setShowShapes((v) => !v)}>Shapes</button>
       <button className="dock-btn right" onClick={() => setShowLayers((v) => !v)}>Layers</button>
