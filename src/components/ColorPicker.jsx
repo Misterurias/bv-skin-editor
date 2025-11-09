@@ -79,45 +79,53 @@ export default function ColorPicker({ color, onChange }) {
               onChange(val);
             }}
           />
+
           <div className="color-inputs">
-            <div>
-              <label>Hex</label>
-              <input
-                type="text"
-                value={hex.replace("#", "").toUpperCase()}
-                onChange={(e) => handleHexChange(e.target.value)}
-                maxLength={6}
-              />
+            {/* HEX ROW */}
+            <div className="color-row">
+              <div>
+                <label>Hex</label>
+                <input
+                  type="text"
+                  value={hex.replace("#", "").toUpperCase()}
+                  onChange={(e) => handleHexChange(e.target.value)}
+                  maxLength={6}
+                />
+              </div>
             </div>
-            <div>
-              <label>R</label>
-              <input
-                type="number"
-                value={rgb.r}
-                onChange={(e) => handleRgbChange("r", e.target.value)}
-                min={0}
-                max={255}
-              />
-            </div>
-            <div>
-              <label>G</label>
-              <input
-                type="number"
-                value={rgb.g}
-                onChange={(e) => handleRgbChange("g", e.target.value)}
-                min={0}
-                max={255}
-              />
-            </div>
-            <div>
-              <label>B</label>
-              <input
-                type="number"
-                value={rgb.b}
-                onChange={(e) => handleRgbChange("b", e.target.value)}
-                min={0}
-                max={255}
-              />
+
+            {/* RGB ROW */}
+            <div className="color-row">
+              <div>
+                <label>R</label>
+                <input
+                  type="number"
+                  value={rgb.r}
+                  onChange={(e) => handleRgbChange("r", e.target.value)}
+                  min={0}
+                  max={255}
+                />
+              </div>
+              <div>
+                <label>G</label>
+                <input
+                  type="number"
+                  value={rgb.g}
+                  onChange={(e) => handleRgbChange("g", e.target.value)}
+                  min={0}
+                  max={255}
+                />
+              </div>
+              <div>
+                <label>B</label>
+                <input
+                  type="number"
+                  value={rgb.b}
+                  onChange={(e) => handleRgbChange("b", e.target.value)}
+                  min={0}
+                  max={255}
+                />
+              </div>
             </div>
           </div>
         </>
