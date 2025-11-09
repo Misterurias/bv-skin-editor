@@ -891,6 +891,34 @@ function moveShapeDown(i) {
     `;
   }
 
+  function ShapeThumbnail({ id }) {
+    const [meta, setMeta] = React.useState(null);
+
+    useEffect(() => {
+      let alive = true;
+      (async () => {
+        const m = await loadAndNormalizeSvg(id);
+        if (alive) setMeta(m);
+      })();
+      return () => (alive = false);
+    }, [id]);
+
+    if (!meta) return <div style={{ width: 32, height: 32 }} />;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox={`${-meta.w / 2} ${-meta.h / 2} ${meta.w} ${meta.h}`}
+        width="32"
+        height="32"
+        style={{ color: "#fff" }}
+      >
+        <g dangerouslySetInnerHTML={{ __html: meta.html }} />
+      </svg>
+    );
+  }
+
+
   // ---------- Render ----------
   return (
     <div
@@ -1027,7 +1055,7 @@ function moveShapeDown(i) {
             const id = idx + 1;
             return (
               <div key={id} className="shape-item" onClick={() => addShape(id)}>
-                <img src={`/output_shapes/${id}.svg`} alt={`Shape ${id}`} />
+                <ShapeThumbnail id={id} />
                 <small>{id}</small>
               </div>
             );
