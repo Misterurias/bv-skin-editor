@@ -197,11 +197,12 @@ html, body {
 .shape-props-panel {
   top: calc(60px + 45%);
   right: 16px;
-  width: 240px;
-  max-height: 40%;
+  width: 300px;            /* wider for color picker */
+  max-height: 55%;
   overflow-y: auto;
   transform: translateY(120%);
 }
+
 .shape-props-panel.open {
   transform: translateY(0);
 }
@@ -376,6 +377,33 @@ html, body {
   background: none;
   cursor: pointer;
 }
+
+.shape-props-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 12px;
+  margin-top: 8px;
+}
+
+.shape-props-grid label {
+  display: flex;
+  flex-direction: column;
+  color: #eee;
+  font-size: 0.9rem;
+}
+
+.shape-props-grid input {
+  background: #111a22;
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  border-radius: 6px;
+  color: #00ffcc;
+  padding: 5px 6px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
 .flip-row {
   display: flex;
   justify-content: space-between;

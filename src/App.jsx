@@ -97,65 +97,68 @@ function ShapeProperties({ shape, index, shapes, updateShape, moveShapeUp, moveS
 
 
 
-      <label>
-        Scale:
-        <input
-          type="text"
-          className="neon-input"
-          value={localScale}
-          onChange={(e) => setLocalScale(e.target.value)}
-          onBlur={() => {
-            const val = parseFloat(localScale);
-            if (!isNaN(val)) updateShape(index, { scale: val });
-          }}
-          onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
-        />
-      </label>
+      <div className="shape-props-grid">
+        <label>
+          Scale:
+          <input
+            type="text"
+            className="neon-input"
+            value={localScale}
+            onChange={(e) => setLocalScale(e.target.value)}
+            onBlur={() => {
+              const val = parseFloat(localScale);
+              if (!isNaN(val)) updateShape(index, { scale: val });
+            }}
+            onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+          />
+        </label>
 
-      <label>
-        Angle:
-        <input
-          type="text"
-          className="neon-input"
-          value={localAngle}
-          onChange={(e) => setLocalAngle(e.target.value)}
-          onBlur={() => {
-            const val = parseFloat(localAngle);
-            if (!isNaN(val)) updateShape(index, { angle: val });
-          }}
-          onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
-        />
-      </label>
+        <label>
+          Angle:
+          <input
+            type="text"
+            className="neon-input"
+            value={localAngle}
+            onChange={(e) => setLocalAngle(e.target.value)}
+            onBlur={() => {
+              const val = parseFloat(localAngle);
+              if (!isNaN(val)) updateShape(index, { angle: val });
+            }}
+            onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+          />
+        </label>
 
-      <label>
-        X Pos:
-        <input
-          type="text"
-          className="neon-input"
-          value={localX}
-          onChange={(e) => setLocalX(e.target.value)}
-          onBlur={() => {
-            const val = parseFloat(localX);
-            if (!isNaN(val)) updateShape(index, { x: val });
-          }}
-          onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
-        />
-      </label>
+        <label>
+          X Pos:
+          <input
+            type="text"
+            className="neon-input"
+            value={localX}
+            onChange={(e) => setLocalX(e.target.value)}
+            onBlur={() => {
+              const val = parseFloat(localX);
+              if (!isNaN(val)) updateShape(index, { x: val });
+            }}
+            onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+          />
+        </label>
 
-      <label>
-        Y Pos:
-        <input
-          type="text"
-          className="neon-input"
-          value={localY}
-          onChange={(e) => setLocalY(e.target.value)}
-          onBlur={() => {
-            const val = parseFloat(localY);
-            if (!isNaN(val)) updateShape(index, { y: val });
-          }}
-          onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
-        />
-      </label>
+        <label>
+          Y Pos:
+          <input
+            type="text"
+            className="neon-input"
+            value={localY}
+            onChange={(e) => setLocalY(e.target.value)}
+            onBlur={() => {
+              const val = parseFloat(localY);
+              if (!isNaN(val)) updateShape(index, { y: val });
+            }}
+            onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+          />
+        </label>
+      </div>
+
 
       <div className="flip-row">
         <button
