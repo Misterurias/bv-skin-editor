@@ -1,0 +1,74 @@
+.color-picker-wrapper {
+  background: #0d141c;
+  border: 1px solid #00e6c3;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  color: #ff4ea3;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.tab {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.tab.active {
+  color: #ff4ea3;
+  text-shadow: 0 0 8px rgba(255, 78, 163, 0.8);
+}
+
+.color-inputs {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.color-inputs div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+.color-inputs input {
+  width: 50px;
+  background: #1a2a33;
+  border: 1px solid #00e6c3;
+  border-radius: 4px;
+  color: #00ffcc;
+  text-align: center;
+  font-weight: bold;
+  padding: 2px 4px;
+}
+
+.bonk-color-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.bonk-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid #00e6c3;
+  transition: transform 0.1s;
+}
+
+.bonk-color:hover {
+  transform: scale(1.1);
+}
+

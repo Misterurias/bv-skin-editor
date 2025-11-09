@@ -1,5 +1,6 @@
 // src/App.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
+import ColorPicker from "./components/ColorPicker";
 import "./index.css";
 import { flipLayers } from "./utils/flipLayers";
 
@@ -84,14 +85,17 @@ function ShapeProperties({ shape, index, shapes, updateShape, moveShapeUp, moveS
 
   return (
     <div className="shape-props-form">
-      <label>
-        Color:
-        <input
-          type="color"
-          value={shape.color}
-          onChange={(e) => updateShape(index, { color: e.target.value })}
+      <div className="shape-color-section">
+        <label style={{ color: "#00ffcc", fontWeight: "bold", marginBottom: "4px" }}>
+          Color:
+        </label>
+        <ColorPicker
+          color={shape.color}
+          onChange={(newColor) => updateShape(index, { color: newColor })}
         />
-      </label>
+      </div>
+
+
 
       <label>
         Scale:
