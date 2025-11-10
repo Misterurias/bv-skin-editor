@@ -11,7 +11,9 @@
 
 /* === React Colorful Core === */
 .react-colorful {
-  width: 100% !important;
+  width: 300px;
+  height: 175px;
+  margin: auto;
 }
 
 .react-colorful__pointer {
@@ -44,9 +46,8 @@
 /* === Input Section === */
 .color-inputs {
   display: flex;
-  flex-direction: column;
   gap: 8px;
-  margin-top: 8px;
+  margin: auto;
 }
 
 /* Each horizontal row (one for HEX, one for RGB) */

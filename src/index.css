@@ -186,7 +186,7 @@ html, body {
   top: 15px;                 /* moved up closer to the top */
   right: 16px;
   width: 420px;
-  height: 50%;               /* adjusted for better spacing */
+  height: 55%;               /* adjusted for better spacing */
   padding: 15px;
   overflow-y: auto;
   background: rgba(26, 39, 51, 0.95);
@@ -206,7 +206,7 @@ html, body {
 /* ===== Layers Button (BETWEEN PANELS) ===== */
 .dock-btn.right {
   position: absolute;
-  top: calc(70px + 50% + 10px); /* between panels */
+  top: calc(80px + 55%); /* between panels */
   right: 16px;
   z-index: 42; /* above panels */
 }
@@ -214,7 +214,7 @@ html, body {
 /* ===== Layers Panel (BOTTOM-RIGHT) ===== */
 .layers-panel {
   position: absolute;
-  top: calc(70px + 50% + 60px); /* below button with spacing */
+  top: calc(130px + 55%); /* below button with spacing */
   right: 16px;
   width: 260px;
   height: 30%;
@@ -533,8 +533,7 @@ html, body {
 
 
 .layers-list {
-  overflow-y: auto;
-  max-height: 80vh;
+  overflow-y: hidden;
 }
 
 .layer-row.dragging {
