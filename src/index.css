@@ -216,7 +216,7 @@ html, body {
   position: absolute;
   top: calc(120px + 54%); /* below button with spacing */
   right: 16px;
-  width: 260px;
+  width: 320px;
   height: 30%;
   overflow-y: auto;
   background: rgba(26, 39, 51, 0.95);
