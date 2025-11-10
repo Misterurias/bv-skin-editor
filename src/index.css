@@ -398,7 +398,7 @@ html, body {
   font-size: 0.9rem;
 }
 .shape-props-form input[type="number"] {
-  width: 90px;
+  width: 64px;
   background: #1b2b3a;
   border: 1px solid #009688;
   border-radius: 6px;

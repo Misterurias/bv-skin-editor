@@ -11,9 +11,9 @@
 
 /* === React Colorful Core === */
 .react-colorful {
-  width: 300px;
-  height: 175px;
-  margin: auto;
+  width: 300px !important;
+  height: 175px !important;
+  margin: auto !important;
 }
 
 .react-colorful__pointer {

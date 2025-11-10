@@ -92,10 +92,8 @@ export default function ColorPicker({ color, onChange }) {
                   maxLength={6}
                 />
               </div>
-            </div>
-
+              
             {/* RGB ROW */}
-            <div className="color-row">
               <div>
                 <label>R</label>
                 <input
