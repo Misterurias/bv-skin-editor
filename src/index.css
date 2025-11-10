@@ -185,7 +185,7 @@ html, body {
   position: absolute;
   top: 15px;                 /* moved up closer to the top */
   right: 16px;
-  width: 420px;
+  width: 320px;
   height: 55%;               /* adjusted for better spacing */
   padding: 15px;
   overflow-y: auto;
