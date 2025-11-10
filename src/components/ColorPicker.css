@@ -48,13 +48,13 @@
   display: flex;
   gap: 8px;
   margin: auto;
+  margin-top: 8px;
 }
 
 /* Each horizontal row (one for HEX, one for RGB) */
 .color-row {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
 }
 
 /* Each input cell */
@@ -67,7 +67,7 @@
 
 /* Input Fields */
 .color-row input {
-  width: 50%;
+  width: 48px;
   background: #1a2a33;
   border: 1px solid #00e6c3;
   border-radius: 4px;
