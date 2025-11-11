@@ -101,6 +101,10 @@ html, body {
   z-index: 60;
 }
 .tools-bar label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   font-weight: bold;
   color: #fff;
 }
@@ -233,6 +237,28 @@ html, body {
   transform: translateX(0);
 }
 
+/* Color Button */
+.color-button {
+  width: 50px;
+  height: 24px;
+  background: #000;
+  border: 2px solid rgba(0, 255, 204, 0.4);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.color-button:hover {
+  box-shadow: 0 0 6px rgba(0, 255, 204, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Color Picker Panel */
+.color-picker {
+  position: fixed;
+  width: 200px;
+  height: 220px;
+}
 
 /* Neon text inputs (fix typing & appearance) */
 .neon-input {
@@ -252,8 +278,8 @@ html, body {
   box-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
 }
 
-/* Flip + Move Buttons */
-.flip-btn, .move-btn {
+/* Flip + Move + Color Picker Mode Buttons */
+.flip-btn, .move-btn, .color-picker-mode {
   flex: 1;
   margin: 4px 2px;
   background: rgba(0, 255, 204, 0.08);
@@ -266,7 +292,7 @@ html, body {
   padding: 6px 0;
   text-shadow: 0 0 3px rgba(0, 255, 204, 0.5);
 }
-.flip-btn:hover, .move-btn:hover {
+.flip-btn:hover, .move-btn:hover, .color-picker-mode:hover {
   background: rgba(0, 255, 204, 0.15);
   box-shadow: 0 0 6px rgba(0, 255, 204, 0.4);
   transform: translateY(-1px);
@@ -274,6 +300,9 @@ html, body {
 .flip-btn.active {
   background: rgba(0, 255, 204, 0.25);
   box-shadow: 0 0 6px rgba(0, 255, 204, 0.6);
+}
+.color-picker-mode[aria-pressed="true"] {
+  background: #001e24
 }
 
 .move-row {
