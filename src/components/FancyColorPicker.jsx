@@ -1,16 +1,15 @@
 // src/ColorPicker.jsx
 import React, { useRef, useEffect, useState } from "react";
 
-const width = 200;
-const height = 150;
-const outerRadius = Math.min(height, width) / 2 - 3;
-const innerRadius = outerRadius * 3 / 4;
-const shapeRadius = innerRadius - 8;
 const mode = { HSV: 0, HSL: 1, OKLCH: 2 };
 const segmentNum = 100;
 const okChromaScale = 0.27;
 
-export default function ColorPicker({ id, color, setColor, pickerMode, setPickerMode }) {
+export default function ColorPicker({ id, color, setColor, pickerMode, setPickerMode, width = 200, height = 150}) {
+  const outerRadius = Math.min(height, width) / 2 - 3;
+  const innerRadius = outerRadius * 3 / 4;
+  const shapeRadius = innerRadius - 8;
+
   let rgb = hexToRgb(color);
   let initPos = rgbToSliderPos(rgb.r, rgb.g, rgb.b, pickerMode);
 
@@ -29,7 +28,6 @@ export default function ColorPicker({ id, color, setColor, pickerMode, setPicker
   let lower = [];
 
   useEffect(() => {
-    console.log("uwu uwu");
     let rgb = hexToRgb(color);
     let newPos = rgbToSliderPos(rgb.r, rgb.g, rgb.b, pickerMode);
     setHueSliderAngle(newPos.angle);
@@ -550,7 +548,7 @@ function hslColor(x, y, xPos, yPos, r, hue) {
 }
 
 function okColor(x, y, xPos, yPos, r, hue, chromaScale) {
-  let side = shapeRadius * Math.sin(Math.PI / 4) * 2;
+  let side = r * Math.sin(Math.PI / 4) * 2;
   return oklrchToRgb(1 - (y - yPos + side / 2) / side, chromaScale * (x - xPos + side / 2) / side, hue);
 }
 

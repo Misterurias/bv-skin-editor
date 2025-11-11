@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import ColorPicker from "./components/ColorPicker1";
+import ColorPicker from "./components/FancyColorPicker";
 import "./index.css";
 import { flipLayers } from "./utils/flipLayers";
 
@@ -70,7 +70,7 @@ async function loadAndNormalizeSvg(id) {
   return meta;
 }
 
-function ShapeProperties({ shape, index, shapes, updateShape, moveShapeUp, moveShapeDown, setShapes, setSelectedIndices, setShowPicker }) {
+function ShapeProperties({ shape, index, shapes, updateShape, moveShapeUp, moveShapeDown, setShapes, setSelectedIndices, pickerMode, setPickerMode }) {
   const [localScale, setLocalScale] = React.useState(shape.scale);
   const [localAngle, setLocalAngle] = React.useState(shape.angle);
   const [localX, setLocalX] = React.useState(shape.x);
@@ -85,20 +85,14 @@ function ShapeProperties({ shape, index, shapes, updateShape, moveShapeUp, moveS
 
   return (
     <div className="shape-props-form">
-      <div style={{display:"flex"}}>
-        Color:
-        <div style={{"margin-left": "auto", position:"relative"}}>
-          <button
-            className="color-button"
-            onClick={() => setShowPicker(((v) => !v))}
-            style={{background: shape.color}}
-            />
-        </div>
-      {/*<div className="shape-color-section">
-        <ColorPicker
-          color={shape.color}
-          onChange={(newColor) => updateShape(index, { color: newColor })}
-        />*/}
+      <div style={{width: "200px", height: "150px", "margin": "0 auto 55px auto"}}>
+          <ColorPicker
+            id = {index}
+            color = {shape.color}
+            setColor = {(newColor) => setShapes((prev) => prev.map((shape, idx) => index === idx ? {...shape, color: newColor} : shape))}
+            pickerMode = {pickerMode}
+            setPickerMode = {setPickerMode}
+          />
       </div>
 
 
@@ -219,7 +213,6 @@ export default function SkinEditor() {
   const [selectedIndices, setSelectedIndices] = useState([]);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [showPropPicker, setShowPropPicker] = useState(false);
   const [showBasePicker, setShowBasePicker] = useState(false);
   const [pickerMode, setPickerMode] = useState(0);
   
@@ -1280,37 +1273,21 @@ export default function SkinEditor() {
 
       {/* === Shape Properties (auto-slide) === */}
       {selectedIndices.length === 1 && (
-        <>
-          <div className="shape-props-panel open ">
-            <h3>Shape Properties</h3>
-            <ShapeProperties
-              shape={shapes[selectedIndices[0]]}
-              index={selectedIndices[0]}
-              shapes={shapes}
-              updateShape={updateShape}
-              moveShapeUp={moveShapeUp}
-              moveShapeDown={moveShapeDown}
-              setShapes={setShapes}
-              setSelectedIndices={setSelectedIndices}
-              setShowPicker={setShowPropPicker}
-            />
-          </div>
-          {/* The magic pixel values may need to be refactored. */}
-          {shapes[selectedIndices[0]] !== undefined &&
-            <div className="panel color-picker" style={{
-              right: "calc(320px + 16px + 14px * 3)",
-              top: "15px",
-              display: showPropPicker ? "block" : "none"
-            }}>
-            <ColorPicker
-              id = {selectedIndices[0]}
-              color = {shapes[selectedIndices[0]].color}
-              setColor = {(color) => updateShape(selectedIndices[0], { color: color })}
-              pickerMode = {pickerMode}
-              setPickerMode = {setPickerMode}
-            />
-          </div>}
-        </>
+        <div className="shape-props-panel open ">
+          <h3>Shape Properties</h3>
+          <ShapeProperties
+            shape={shapes[selectedIndices[0]]}
+            index={selectedIndices[0]}
+            shapes={shapes}
+            updateShape={updateShape}
+            moveShapeUp={moveShapeUp}
+            moveShapeDown={moveShapeDown}
+            setShapes={setShapes}
+            setSelectedIndices={setSelectedIndices}
+            pickerMode={pickerMode}
+            setPickerMode={setPickerMode}
+          />
+        </div>
       )}
 
 
