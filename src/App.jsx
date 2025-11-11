@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import ColorPicker from "./ColorPicker.jsx"
+import ColorPicker from "./components/ColorPicker1";
 import "./index.css";
 import { flipLayers } from "./utils/flipLayers";
 
@@ -11,9 +11,9 @@ const BALL_RADIUS_UNITS = 50;
 const BALL_RADIUS_PX = CANVAS_SIZE / 2;
 const PX_PER_UNIT = BALL_RADIUS_PX / BALL_RADIUS_UNITS;
 
-const BONK_SCALE_FACTOR = 24.24;
-const BONK_X_POS_FACTOR = 22.26;
-const BONK_Y_POS_FACTOR = 21.26;
+const BONK_SCALE_FACTOR = 21.5;
+const BONK_X_POS_FACTOR = 21.5;
+const BONK_Y_POS_FACTOR = 21.5;
 
 const svgCache = new Map();
 
@@ -94,67 +94,77 @@ function ShapeProperties({ shape, index, shapes, updateShape, moveShapeUp, moveS
             style={{background: shape.color}}
             />
         </div>
+      {/*<div className="shape-color-section">
+        <ColorPicker
+          color={shape.color}
+          onChange={(newColor) => updateShape(index, { color: newColor })}
+        />*/}
       </div>
 
-      <label>
-        Scale:
-        <input
-          type="text"
-          className="neon-input"
-          value={localScale}
-          onChange={(e) => setLocalScale(e.target.value)}
-          onBlur={() => {
-            const val = parseFloat(localScale);
-            if (!isNaN(val)) updateShape(index, { scale: val });
-          }}
-          onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
-        />
-      </label>
 
-      <label>
-        Angle:
-        <input
-          type="text"
-          className="neon-input"
-          value={localAngle}
-          onChange={(e) => setLocalAngle(e.target.value)}
-          onBlur={() => {
-            const val = parseFloat(localAngle);
-            if (!isNaN(val)) updateShape(index, { angle: val });
-          }}
-          onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
-        />
-      </label>
 
-      <label>
-        X Pos:
-        <input
-          type="text"
-          className="neon-input"
-          value={localX}
-          onChange={(e) => setLocalX(e.target.value)}
-          onBlur={() => {
-            const val = parseFloat(localX);
-            if (!isNaN(val)) updateShape(index, { x: val });
-          }}
-          onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
-        />
-      </label>
+      <div className="shape-props-grid">
+        <label>
+          Scale:
+          <input
+            type="text"
+            className="neon-input"
+            value={localScale}
+            onChange={(e) => setLocalScale(e.target.value)}
+            onBlur={() => {
+              const val = parseFloat(localScale);
+              if (!isNaN(val)) updateShape(index, { scale: val });
+            }}
+            onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+          />
+        </label>
 
-      <label>
-        Y Pos:
-        <input
-          type="text"
-          className="neon-input"
-          value={localY}
-          onChange={(e) => setLocalY(e.target.value)}
-          onBlur={() => {
-            const val = parseFloat(localY);
-            if (!isNaN(val)) updateShape(index, { y: val });
-          }}
-          onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
-        />
-      </label>
+        <label>
+          Angle:
+          <input
+            type="text"
+            className="neon-input"
+            value={localAngle}
+            onChange={(e) => setLocalAngle(e.target.value)}
+            onBlur={() => {
+              const val = parseFloat(localAngle);
+              if (!isNaN(val)) updateShape(index, { angle: val });
+            }}
+            onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+          />
+        </label>
+
+        <label>
+          X Pos:
+          <input
+            type="text"
+            className="neon-input"
+            value={localX}
+            onChange={(e) => setLocalX(e.target.value)}
+            onBlur={() => {
+              const val = parseFloat(localX);
+              if (!isNaN(val)) updateShape(index, { x: val });
+            }}
+            onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+          />
+        </label>
+
+        <label>
+          Y Pos:
+          <input
+            type="text"
+            className="neon-input"
+            value={localY}
+            onChange={(e) => setLocalY(e.target.value)}
+            onBlur={() => {
+              const val = parseFloat(localY);
+              if (!isNaN(val)) updateShape(index, { y: val });
+            }}
+            onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+          />
+        </label>
+      </div>
+
 
       <div className="flip-row">
         <button
@@ -219,6 +229,10 @@ export default function SkinEditor() {
   const [showToolbar, setShowToolbar] = useState(true);
   const [history, setHistory] = useState([]);
   const [future, setFuture] = useState([]);
+  const [isReordering, setIsReordering] = useState(false);
+  const [mouseInsideCanvas, setMouseInsideCanvas] = useState(true);
+
+
 
   useEffect(() => {
     const seen = localStorage.getItem("seenWelcomePopup");
@@ -241,7 +255,13 @@ export default function SkinEditor() {
   const overlayDrag = useRef(null);
 
 
-  const [camera, setCamera] = useState({ x: 0, y: 0, zoom: 1 });
+  const [camera, setCamera] = useState({
+    x: 0,
+    y: 0,
+    zoom: 1,
+  });
+
+
 
   const dragRef = useRef(null);
   const handleRef = useRef(null);
@@ -324,24 +344,30 @@ export default function SkinEditor() {
     );
   }
 
-function moveShapeUp(i) {
-  if (i >= shapes.length - 1) return;
-  const newShapes = [...shapes];
-  [newShapes[i], newShapes[i + 1]] = [newShapes[i + 1], newShapes[i]];
-  commitShapes(newShapes);
-  setSelectedIndices([i + 1]);
-}
+  function moveShapeUp(i) {
+    if (i >= shapes.length - 1) return;
+    setIsReordering(true);
+    const newShapes = [...shapes];
+    [newShapes[i], newShapes[i + 1]] = [newShapes[i + 1], newShapes[i]];
+    commitShapes(newShapes);
+    setSelectedIndices([i + 1]);
+    setTimeout(() => setIsReordering(false), 150);
+  }
 
-function moveShapeDown(i) {
-  if (i <= 0) return;
-  const newShapes = [...shapes];
-  [newShapes[i], newShapes[i - 1]] = [newShapes[i - 1], newShapes[i]];
-  commitShapes(newShapes);
-  setSelectedIndices([i - 1]);
-}
+  function moveShapeDown(i) {
+    if (i <= 0) return;
+    setIsReordering(true);
+    const newShapes = [...shapes];
+    [newShapes[i], newShapes[i - 1]] = [newShapes[i - 1], newShapes[i]];
+    commitShapes(newShapes);
+    setSelectedIndices([i - 1]);
+    setTimeout(() => setIsReordering(false), 150);
+  }
+
 
   // ---------- Multi-select drag ----------
   function onMouseDownShape(e, i) {
+  e.preventDefault();
   e.stopPropagation();
   const multi = e.shiftKey || e.metaKey || e.ctrlKey;
   setSelectedIndices((prev) => {
@@ -365,12 +391,20 @@ function moveShapeDown(i) {
   dragRef.current = { dragging, startX, startY, zoom: zoomAtDragStart, originalPositions };
 
   function onMove(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
     if (!dragRef.current) return;
     const ref = dragRef.current;
     if (!ref || !ref.originalPositions) return;
 
-    const dx = (ev.clientX - ref.startX) / ref.zoom;
-    const dy = (ev.clientY - ref.startY) / ref.zoom;
+    let dx = (ev.clientX - ref.startX) / ref.zoom;
+    let dy = (ev.clientY - ref.startY) / ref.zoom;
+
+    // --- Modifier key behavior ---
+    // Shift → horizontal only
+    // Ctrl / Cmd → vertical only
+    if (ev.shiftKey) dy = 0;
+    if (ev.ctrlKey || ev.metaKey) dx = 0;
 
     // Smooth dragging update (no history commit yet)
     setShapes((prev) =>
@@ -382,13 +416,18 @@ function moveShapeDown(i) {
   }
 
   function onUp(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
     if (!dragRef.current) return;
 
     const ref = dragRef.current;
     if (!ref || !ref.originalPositions) return;
 
-    const dx = (ev.clientX - ref.startX) / ref.zoom;
-    const dy = (ev.clientY - ref.startY) / ref.zoom;
+    let dx = (ev.clientX - ref.startX) / ref.zoom;
+    let dy = (ev.clientY - ref.startY) / ref.zoom;
+
+    if (ev.shiftKey) dy = 0;
+    if (ev.ctrlKey || ev.metaKey) dx = 0;
 
     // Use the *latest* state from setShapes above:
     setShapes((prev) => {
@@ -422,8 +461,11 @@ function moveShapeDown(i) {
   const toWorld = (clientX, clientY) => {
     const sx = clientX - rect.left;
     const sy = clientY - rect.top;
-    return { x: sx / zoom - camX, y: sy / zoom - camY };
+    const worldX = (sx - window.innerWidth / 2 + CANVAS_SIZE / 2 - camX) / zoom;
+    const worldY = (sy - window.innerHeight / 2 + CANVAS_SIZE / 2 - camY) / zoom;
+    return { x: worldX, y: worldY };
   };
+
 
   const start = toWorld(e.clientX, e.clientY);
   const cx = shape.x;
@@ -448,24 +490,39 @@ function moveShapeDown(i) {
   // --- Live update for smooth preview (no commit yet) ---
   function onMove(ev) {
     const ref = handleRef.current;
-    if (!ref) return; // ✅ Prevent null crash
+    if (!ref) return;
 
     const cur = toWorld(ev.clientX, ev.clientY);
     const curVec = { x: cur.x - ref.cx, y: cur.y - ref.cy };
+
     const d0 = Math.hypot(ref.startVec.x, ref.startVec.y);
     const d1 = Math.hypot(curVec.x, curVec.y);
-    const scale = Math.max(0.05, ref.startScale * (d1 / d0));
+    const rawScale = Math.max(0.05, ref.startScale * (d1 / d0));
 
     const a0 = Math.atan2(ref.startVec.y, ref.startVec.x);
     const a1 = Math.atan2(curVec.y, curVec.x);
-    const deltaDeg = ((a1 - a0) * 180) / Math.PI;
+    const rawDeltaDeg = ((a1 - a0) * 180) / Math.PI;
 
+    // === modifier-key behavior ===
+    let scale = rawScale;
+    let angle = ref.startAngle + rawDeltaDeg;
+
+    if (ev.shiftKey) {
+      // Shift → scale only (lock rotation)
+      angle = ref.startAngle;
+    } else if (ev.ctrlKey || ev.metaKey) {
+      // Ctrl / Cmd → rotate only (lock scale)
+      scale = ref.startScale;
+    }
+
+    // ✅ live updates while dragging
     setShapes((prev) =>
       prev.map((s, idx) =>
-        idx === i ? { ...s, scale, angle: ref.startAngle + deltaDeg } : s
+        idx === i ? { ...s, scale, angle } : s
       )
     );
   }
+
 
   function onUp(ev) {
     const ref = handleRef.current;
@@ -475,15 +532,34 @@ function moveShapeDown(i) {
     const curVec = { x: cur.x - ref.cx, y: cur.y - ref.cy };
     const d0 = Math.hypot(ref.startVec.x, ref.startVec.y);
     const d1 = Math.hypot(curVec.x, curVec.y);
-    const scale = Math.max(0.05, ref.startScale * (d1 / d0));
+    // const scale = Math.max(0.05, ref.startScale * (d1 / d0));
+
+    // const a0 = Math.atan2(ref.startVec.y, ref.startVec.x);
+    // const a1 = Math.atan2(curVec.y, curVec.x);
+    // const deltaDeg = ((a1 - a0) * 180) / Math.PI;
+
+    // setShapes((prev) => {
+    //   const finalShapes = prev.map((s, idx) =>
+    //     idx === i ? { ...s, scale, angle: ref.startAngle + deltaDeg } : s
+    //   );
+    //   commitShapes(finalShapes);
+    //   return finalShapes;
+    // });
+    const rawScale = Math.max(0.05, ref.startScale * (d1 / d0));
 
     const a0 = Math.atan2(ref.startVec.y, ref.startVec.x);
     const a1 = Math.atan2(curVec.y, curVec.x);
-    const deltaDeg = ((a1 - a0) * 180) / Math.PI;
+    const rawDeltaDeg = ((a1 - a0) * 180) / Math.PI;
+
+    let scale = rawScale;
+    let angle = ref.startAngle + rawDeltaDeg;
+
+    if (ev.shiftKey) angle = ref.startAngle; // scale only
+    if (ev.ctrlKey || ev.metaKey) scale = ref.startScale; // rotate only
 
     setShapes((prev) => {
       const finalShapes = prev.map((s, idx) =>
-        idx === i ? { ...s, scale, angle: ref.startAngle + deltaDeg } : s
+        idx === i ? { ...s, scale, angle } : s
       );
       commitShapes(finalShapes);
       return finalShapes;
@@ -530,6 +606,28 @@ function moveShapeDown(i) {
     };
 
     const handleMouseUp = () => (isPanning = false);
+    // const handleWheel = (e) => {
+    //   e.preventDefault();
+
+    //   const rect = svg.getBoundingClientRect();
+    //   const mouseX = e.clientX - rect.left;
+    //   const mouseY = e.clientY - rect.top;
+    //   const zoomAmount = e.deltaY * -0.001;
+
+    //   setCamera((prev) => {
+    //     const newZoom = Math.min(Math.max(prev.zoom + zoomAmount, 0.2), 5);
+
+    //     // Convert mouse screen coords → world coords before zoom
+    //     const worldX = (mouseX / prev.zoom) - prev.x;
+    //     const worldY = (mouseY / prev.zoom) - prev.y;
+
+    //     // Adjust camera to keep zoom centered around cursor
+    //     const newX = mouseX / newZoom - worldX;
+    //     const newY = mouseY / newZoom - worldY;
+
+    //     return { x: newX, y: newY, zoom: newZoom };
+    //   });
+    // };
     const handleWheel = (e) => {
       e.preventDefault();
 
@@ -541,17 +639,22 @@ function moveShapeDown(i) {
       setCamera((prev) => {
         const newZoom = Math.min(Math.max(prev.zoom + zoomAmount, 0.2), 5);
 
-        // Convert mouse screen coords → world coords before zoom
-        const worldX = (mouseX / prev.zoom) - prev.x;
-        const worldY = (mouseY / prev.zoom) - prev.y;
+        // Center of visible canvas in screen space
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
 
-        // Adjust camera to keep zoom centered around cursor
-        const newX = mouseX / newZoom - worldX;
-        const newY = mouseY / newZoom - worldY;
+        // Convert mouse position into *canvas-space* coordinates
+        const worldX = (mouseX - cx + CANVAS_SIZE / 2 - prev.x) / prev.zoom;
+        const worldY = (mouseY - cy + CANVAS_SIZE / 2 - prev.y) / prev.zoom;
+
+        // Keep zoom centered around cursor
+        const newX = -(worldX * newZoom - (mouseX - cx + CANVAS_SIZE / 2));
+        const newY = -(worldY * newZoom - (mouseY - cy + CANVAS_SIZE / 2));
 
         return { x: newX, y: newY, zoom: newZoom };
       });
     };
+
 
 
     svg.addEventListener("mousedown", handleMouseDown);
@@ -568,8 +671,14 @@ function moveShapeDown(i) {
   }, []);
 
   function resetCamera() {
-    setCamera({ x: 0, y: 0, zoom: 1 });
+    setCamera({
+      x: 0,
+      y: 0,
+      zoom: 1,
+    });
   }
+
+
 
   // ---------- Export / Import ----------
 
@@ -676,25 +785,30 @@ function moveShapeDown(i) {
         {/* Selection box + handle */}
         {isSelected(i) && !s.locked && (
           <>
+            {/* Glow outline (outer darker edge) */}
             <rect
-              x={-w / 2}
-              y={-h / 2}
-              width={w}
-              height={h}
+              x={-w / 2 - 1}
+              y={-h / 2 - 1}
+              width={w + 2}
+              height={h + 2}
               fill="none"
-              stroke="lime"
+              stroke="rgba(0, 255, 200, 0.5)" // teal glow, 50% opacity
               strokeWidth={2}
               pointerEvents="none"
             />
-            <rect
-              x={w / 2 - HANDLE / 2}
-              y={-h / 2 - HANDLE / 2}
-              width={HANDLE}
-              height={HANDLE}
-              fill="white"
-              stroke="black"
-              style={{ cursor: "nwse-resize" }}
-              onMouseDown={(e) => onMouseDownHandle(e, i)}
+            {/* === Single top-right corner handle === */}
+            <circle
+              cx={w / 2}
+              cy={-h / 2}
+              r={5}
+              fill="#00ffcc"
+              stroke="#003333"
+              strokeWidth={1.5}
+              style={{
+                cursor: "nesw-resize",
+                pointerEvents: "all", // ensures it's clickable
+              }}
+              onMouseDown={(e) => onMouseDownHandle(e, i, "topright")}
             />
           </>
         )}
@@ -816,503 +930,6 @@ function moveShapeDown(i) {
     `;
   }
 
-
-
-// // ---------- Render ----------
-// return (
-//   <div className="editor-container">
-//     <div
-//       className="editor-main overlay-dropzone"
-//       onDragOver={(e) => e.preventDefault()}
-//       onDrop={(e) => {
-//         e.preventDefault();
-//         const file = e.dataTransfer.files[0];
-//         if (file && file.type.startsWith("image/")) {
-//           const reader = new FileReader();
-//           reader.onload = (evt) => {
-//             setOverlay((o) => ({
-//               ...o,
-//               src: evt.target.result,
-//               visible: true,
-//             }));
-//           };
-//           reader.readAsDataURL(file);
-//         }
-//       }}
-//     >
-//       {/* Toolbar */}
-//       <div className="editor-toolbar">
-//         <label>
-//           Base color:
-//           <input
-//             type="color"
-//             value={baseColor}
-//             onChange={(e) => setBaseColor(e.target.value)}
-//           />
-//         </label>
-
-//         <button
-//           className="editor-btn"
-//           onClick={async () => {
-//             const skinJSON = {
-//               bc: parseInt(baseColor.replace("#", ""), 16),
-//               layers: [...shapes].reverse().map((s) => ({
-//                 id: s.id,
-//                 scale: +(s.scale / BONK_SCALE_FACTOR).toFixed(6),
-//                 angle: +s.angle.toFixed(6),
-//                 x: +(((s.x - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
-//                 y: +(((s.y - CANVAS_SIZE / 2) / BONK_POS_FACTOR)).toFixed(6),
-//                 flipX: !!s.flipX,
-//                 flipY: !!s.flipY,
-//                 color: parseInt(s.color.replace("#", ""), 16),
-//               })),
-//             };
-
-//             const username = prompt("Bonk.io Username:");
-//             const password = prompt("Bonk.io Password:");
-//             if (!username || !password) return alert("Missing credentials");
-
-//             const res = await fetch("/api/wear", {
-//               method: "POST",
-//               headers: { "Content-Type": "application/json" },
-//               body: JSON.stringify({ username, password, skin: skinJSON }),
-//             });
-
-//             const data = await res.json();
-//             if (data.ok) {
-//               alert(`✅ Skin applied successfully to slot ${data.activeSlot}!`);
-//               console.log("Skin code:", data.skinCode);
-//             } else {
-//               alert("❌ Failed to wear skin: " + (data.error || "unknown"));
-//             }
-//           }}
-//         >
-//           Wear Skin
-//         </button>
-
-//         <button className="editor-btn" onClick={exportJSON}>Export</button>
-//         <label className="file-label">
-//           Import
-//           <input
-//             type="file"
-//             accept=".json"
-//             onChange={importJSON}
-//             className="file-input"
-//           />
-//         </label>
-
-//         <button
-//           className="editor-btn"
-//           onClick={() =>
-//             selectedIndices.length > 0 &&
-//             setShapes((prev) =>
-//               prev.map((s, i) =>
-//                 selectedIndices.includes(i) ? { ...s, flipX: !s.flipX } : s
-//               )
-//             )
-//           }
-//         >
-//           FlipX
-//         </button>
-//         <button
-//           className="editor-btn"
-//           onClick={() =>
-//             selectedIndices.length > 0 &&
-//             setShapes((prev) =>
-//               prev.map((s, i) =>
-//                 selectedIndices.includes(i) ? { ...s, flipY: !s.flipY } : s
-//               )
-//             )
-//           }
-//         >
-//           FlipY
-//         </button>
-
-//         <button className="editor-btn" onClick={resetCamera}>
-//           Reset View
-//         </button>
-
-//         {/* Overlay Controls */}
-//         {overlay.src && (
-//           <div className="overlay-controls">
-//             <label>
-//               Opacity:
-//               <input
-//                 type="range"
-//                 min="0"
-//                 max="1"
-//                 step="0.05"
-//                 value={overlay.opacity}
-//                 onChange={(e) =>
-//                   setOverlay((o) => ({
-//                     ...o,
-//                     opacity: parseFloat(e.target.value),
-//                   }))
-//                 }
-//               />
-//             </label>
-//             <button
-//               className="editor-btn"
-//               onClick={() =>
-//                 setOverlay((o) => ({ ...o, visible: !o.visible }))
-//               }
-//             >
-//               {overlay.visible ? "Hide Overlay" : "Show Overlay"}
-//             </button>
-//             <button
-//               className="editor-btn"
-//               onClick={() =>
-//                 setOverlay({
-//                   src: null,
-//                   x: CANVAS_SIZE / 2,
-//                   y: CANVAS_SIZE / 2,
-//                   scale: 1,
-//                   opacity: 0.5,
-//                   visible: true,
-//                 })
-//               }
-//             >
-//               Remove
-//             </button>
-//           </div>
-//         )}
-
-//         <button
-//           className="editor-btn"
-//           title="Keyboard Shortcuts"
-//           onClick={() => setShowShortcuts(true)}
-//         >
-//           <FiSettings size={18} style={{ marginRight: "4px" }} />
-//           Shortcuts
-//         </button>
-
-//         <input
-//           type="color"
-//           value={
-//             selectedIndices.length === 1
-//               ? shapes[selectedIndices[0]].color
-//               : "#000000"
-//           }
-//           onChange={(e) =>
-//             selectedIndices.length > 0 &&
-//             setShapes((prev) =>
-//               prev.map((s, i) =>
-//                 selectedIndices.includes(i)
-//                   ? { ...s, color: e.target.value }
-//                   : s
-//               )
-//             )
-//           }
-//           title="Shape color"
-//         />
-//       </div>
-
-//       {/* Canvas */}
-//       <svg
-//         ref={canvasRef}
-//         width={CANVAS_SIZE}
-//         height={CANVAS_SIZE}
-//         className="editor-canvas"
-//         onMouseDown={clearSelection}
-//       >
-//         <g transform={`scale(${camera.zoom}) translate(${camera.x},${camera.y})`}>
-//           <defs>
-//             <clipPath id="playerClip">
-//               <circle
-//                 cx={CANVAS_SIZE / 2}
-//                 cy={CANVAS_SIZE / 2}
-//                 r={BALL_RADIUS_PX}
-//               />
-//             </clipPath>
-//           </defs>
-
-//           {/* Shadow outline */}
-//           <circle
-//             cx={CANVAS_SIZE / 2}
-//             cy={CANVAS_SIZE / 2}
-//             r={BALL_RADIUS_PX + 2}
-//             fill="none"
-//             stroke="rgba(0,0,0,0.25)"
-//             strokeWidth={4}
-//           />
-
-//           {/* Base fill */}
-//           <circle
-//             cx={CANVAS_SIZE / 2}
-//             cy={CANVAS_SIZE / 2}
-//             r={BALL_RADIUS_PX}
-//             fill={baseColor}
-//             stroke="#333"
-//             strokeWidth={3}
-//           />
-
-//           {/* Overlay image */}
-//           {overlay.src && overlay.visible && (
-//             <image
-//               href={overlay.src}
-//               x={overlay.x - CANVAS_SIZE / 2}
-//               y={overlay.y - CANVAS_SIZE / 2}
-//               width={CANVAS_SIZE * overlay.scale}
-//               height={CANVAS_SIZE * overlay.scale}
-//               opacity={overlay.opacity}
-//               style={{ cursor: "move" }}
-//               onMouseDown={(e) => {
-//                 e.stopPropagation();
-//                 overlayDrag.current = {
-//                   startX: e.clientX,
-//                   startY: e.clientY,
-//                   startPos: { x: overlay.x, y: overlay.y },
-//                 };
-//                 const onMove = (ev) => {
-//                   const dx = ev.clientX - overlayDrag.current.startX;
-//                   const dy = ev.clientY - overlayDrag.current.startY;
-//                   setOverlay((o) => ({
-//                     ...o,
-//                     x: overlayDrag.current.startPos.x + dx,
-//                     y: overlayDrag.current.startPos.y + dy,
-//                   }));
-//                 };
-//                 const onUp = () => {
-//                   window.removeEventListener("mousemove", onMove);
-//                   window.removeEventListener("mouseup", onUp);
-//                   overlayDrag.current = null;
-//                 };
-//                 window.addEventListener("mousemove", onMove);
-//                 window.addEventListener("mouseup", onUp);
-//               }}
-//             />
-//           )}
-
-//           {/* Shapes */}
-//           <g clipPath="url(#playerClip)">
-//             {shapes.map((s, i) => (
-//               <Shape key={i} s={s} i={i} />
-//             ))}
-//           </g>
-//         </g>
-//       </svg>
-//     </div>
-
-//     {/* Panels (unchanged) */}
-//     <div className="side-panels">
-//       <div className="shapes-panel">
-//         <h3>Shapes</h3>
-//         <div className="shape-grid">
-//           {Array.from({ length: TOTAL_SHAPES }, (_, idx) => {
-//             const id = idx + 1;
-//             return (
-//               <div key={id} className="shape-item" onClick={() => addShape(id)}>
-//                 <img
-//                   src={`/output_shapes/${id}.svg`}
-//                   alt={`Shape ${id}`}
-//                   width={32}
-//                   height={32}
-//                 />
-//                 <small>{id}</small>
-//               </div>
-//             );
-//           })}
-//         </div>
-//       </div>
-
-//       <div className="layers-panel">
-//         <h3>Layers</h3>
-//         {shapes
-//           .slice()
-//           .reverse()
-//           .map((s, i) => {
-//             const realIndex = shapes.length - 1 - i;
-//             const selected = isSelected(realIndex);
-//             return (
-//               <button
-//                 key={i}
-//                 onClick={() => setSelectedIndices([realIndex])}
-//                 className={`layer-btn ${selected ? "active" : ""}`}
-//               >
-//                 {`Shape ${s.id}`}
-//               </button>
-//             );
-//           })}
-//       </div>
-//     </div>
-
-//     {/* Shape Properties Panel */}
-//       {selectedIndices.length === 1 && (
-//         <div className="shape-properties">
-//           <h3>Shape Properties</h3>
-//           {(() => {
-//             const i = selectedIndices[0];
-//             const s = shapes[i];
-//             return (
-//               <div className="shape-props-form">
-//                 <label>
-//                   Color:
-//                   <input
-//                     type="color"
-//                     value={s.color}
-//                     onChange={(e) => updateShape(i, { color: e.target.value })}
-//                   />
-//                 </label>
-
-//                 <label>
-//                   Scale:
-//                   <input
-//                     type="number"
-//                     step="0.01"
-//                     value={s.scale.toFixed(3)}
-//                     onChange={(e) =>
-//                       updateShape(i, { scale: parseFloat(e.target.value) || 0 })
-//                     }
-//                   />
-//                 </label>
-
-//                 <label>
-//                   Angle:
-//                   <input
-//                     type="number"
-//                     step="1"
-//                     value={s.angle.toFixed(3)}
-//                     onChange={(e) =>
-//                       updateShape(i, { angle: parseFloat(e.target.value) || 0 })
-//                     }
-//                   />
-//                 </label>
-
-//                 <label>
-//                   X Pos:
-//                   <input
-//                     type="number"
-//                     step="1"
-//                     value={s.x.toFixed(1)}
-//                     onChange={(e) =>
-//                       updateShape(i, { x: parseFloat(e.target.value) || 0 })
-//                     }
-//                   />
-//                 </label>
-
-//                 <label>
-//                   Y Pos:
-//                   <input
-//                     type="number"
-//                     step="1"
-//                     value={s.y.toFixed(1)}
-//                     onChange={(e) =>
-//                       updateShape(i, { y: parseFloat(e.target.value) || 0 })
-//                     }
-//                   />
-//                 </label>
-
-//                 <div className="flip-row">
-//                   <label>
-//                     <input
-//                       type="checkbox"
-//                       checked={s.flipX}
-//                       onChange={(e) => updateShape(i, { flipX: e.target.checked })}
-//                     />{" "}
-//                     Flip X
-//                   </label>
-//                   <label>
-//                     <input
-//                       type="checkbox"
-//                       checked={s.flipY}
-//                       onChange={(e) => updateShape(i, { flipY: e.target.checked })}
-//                     />{" "}
-//                     Flip Y
-//                   </label>
-//                 </div>
-
-//                 <div className="layer-move-row">
-//                   <button
-//                     className="move-btn"
-//                     onClick={() => moveShapeUp(i)}
-//                     disabled={i === shapes.length - 1}
-//                   >
-//                     Move Up
-//                   </button>
-//                   <button
-//                     className="move-btn"
-//                     onClick={() => moveShapeDown(i)}
-//                     disabled={i === 0}
-//                   >
-//                     Move Down
-//                   </button>
-//                 </div>
-
-
-//                 <button
-//                   className="delete-btn"
-//                   onClick={() => {
-//                     setShapes((prev) => prev.filter((_, idx) => idx !== i));
-//                     setSelectedIndices([]);
-//                   }}
-//                 >
-//                   Delete Shape
-//                 </button>
-//               </div>
-//             );
-//           })()}
-//         </div>
-//       )}
-
-
-//       {/* Shortcuts Modal */}
-//       {showShortcuts && (
-//         <div className="modal-overlay" onClick={() => setShowShortcuts(false)}>
-//           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-//             <h2>🎹 Keyboard Shortcuts</h2>
-//             <div className="shortcuts-grid">
-//               <div>
-//                 <h3>🧩 Shape Controls</h3>
-//                 <ul>
-//                   <li><b>Arrow Keys</b> — Move (Shift = 10px)</li>
-//                   <li><b>R / Shift+R</b> — Rotate ±5°</li>
-//                   <li><b>+</b> / <b>-</b> — Scale up/down</li>
-//                   <li><b>X / Y</b> — Flip horizontally/vertically</li>
-//                   <li><b>Delete</b> — Delete selected</li>
-//                   <li><b>Ctrl+D</b> — Duplicate selected</li>
-//                   <li><b>Ctrl+C / Ctrl+V</b> — Copy / Paste</li>
-//                   <li><b>Shift / Ctrl+Click</b> — Multi-select</li>
-//                 </ul>
-//               </div>
-//             </div>
-//             <button className="close-btn" onClick={() => setShowShortcuts(false)}>Close</button>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Welcome Popup */}
-//       {showWelcome && (
-//         <div className="modal-overlay" onClick={() => setShowWelcome(false)}>
-//           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-//             <h2>🎨 Welcome to the Bonkverse Skin Editor!</h2>
-//             <p style={{ fontSize: "15px", lineHeight: "1.6", color: "#ccc" }}>
-//               Here’s what you can do right now:
-//             </p>
-//             <ul style={{ fontSize: "14px", lineHeight: "1.6", color: "#ccc" }}>
-//               <li>🧩 <b>Add & Edit Shapes:</b> Click any shape to add it, then drag, rotate, or scale using handles.</li>
-//               <li>🎨 <b>Change Colors:</b> Use the color picker to recolor selected shapes or the base body.</li>
-//               <li>↕️ <b>Layer Controls:</b> Move shapes forward/back or reorder layers using the “Move Up/Down” buttons.</li>
-//               <li>🖱️ <b>Multi-select:</b> Hold <b>Shift</b> or <b>Ctrl</b> to select and move multiple shapes at once.</li>
-//               <li>📷 <b>Image Overlay:</b> Drag and drop an image onto the canvas to trace over it (adjust opacity or hide it anytime).</li>
-//               <li>💾 <b>Export / Import:</b> Save your skin as JSON or load one back in.</li>
-//               <li>👕 <b>Wear Skin:</b> Apply your current design to your Bonk.io account directly.</li>
-//               <li>⚡ <b>Keyboard Shortcuts:</b> Move, rotate, scale, flip, duplicate, or delete using keys (press <b>Shift + ?</b> to view all).</li>
-//               <li>🧭 <b>Camera:</b> Zoom or pan with your mouse wheel and drag empty space to move around.</li>
-//             </ul>
-//             <button
-//               className="close-btn"
-//               style={{ marginTop: "20px" }}
-//               onClick={() => setShowWelcome(false)}
-//             >
-//               Got it!
-//             </button>
-//           </div>
-//         </div>
-//       )}
-
-//     </div>
-// );
-
   // ---------- Render ----------
   return (
     <div
@@ -1338,8 +955,14 @@ function moveShapeDown(i) {
             reader.readAsDataURL(file);
           }
         }}
+        onMouseEnter={() => setMouseInsideCanvas(true)}
+        onMouseLeave={() => setMouseInsideCanvas(false)}
       >
-        <g transform={`scale(${camera.zoom}) translate(${camera.x},${camera.y})`}>
+        <g transform={`translate(${camera.x + window.innerWidth / 2 - CANVAS_SIZE / 2},
+                         ${camera.y + window.innerHeight / 2 - CANVAS_SIZE / 2}) 
+               scale(${camera.zoom})`}>
+
+
           <defs>
             <clipPath id="playerClip">
               <circle cx={CANVAS_SIZE / 2} cy={CANVAS_SIZE / 2} r={BALL_RADIUS_PX} />
@@ -1417,13 +1040,23 @@ function moveShapeDown(i) {
           )}
 
           {/* Shapes */}
+          {/* Shapes Rendering Logic */}
+          {/* --- Always clip non-selected shapes --- */}
           <g clipPath="url(#playerClip)">
             {shapes.map((s, i) => (
               <Shape key={i} s={s} i={i} />
             ))}
           </g>
+
+          {/* --- Selected shapes re-rendered on top (unclipped) only when: --- */}
+          {/*     1. Mouse is inside canvas (editing mode) */}
+          {/*     2. Not currently reordering layers */}
+          {mouseInsideCanvas && !isReordering &&
+            shapes.map((s, i) =>
+              isSelected(i) ? <Shape key={`${i}-sel`} s={s} i={i} /> : null
+            )}
         </g>
-      </svg>
+        </svg>
 
       {/* === Floating Toggles === */}
       <button className="dock-btn left" onClick={() => setShowShapes((v) => !v)}>Shapes</button>
@@ -1446,7 +1079,7 @@ function moveShapeDown(i) {
       </div>
 
       {/* === Right Panel: Layers === */}
-      <div className={`panel panel-right ${showLayers ? "open" : ""}`}>
+      <div className={`panel layers-panel ${showLayers ? "open" : ""}`}>
         <h3>
           Layers ({shapes.length}/16)
           {shapes.length >= 16 && (
@@ -1648,7 +1281,7 @@ function moveShapeDown(i) {
       {/* === Shape Properties (auto-slide) === */}
       {selectedIndices.length === 1 && (
         <>
-          <div className="panel panel-right open shape-props-panel">
+          <div className="shape-props-panel open ">
             <h3>Shape Properties</h3>
             <ShapeProperties
               shape={shapes[selectedIndices[0]]}
@@ -1663,9 +1296,10 @@ function moveShapeDown(i) {
             />
           </div>
           {/* The magic pixel values may need to be refactored. */}
-          <div className="panel color-picker" style={{
-              right: "calc(240px + 16px + 14px * 3)",
-              bottom: "57px",
+          {shapes[selectedIndices[0]] !== undefined &&
+            <div className="panel color-picker" style={{
+              right: "calc(320px + 16px + 14px * 3)",
+              top: "15px",
               display: showPropPicker ? "block" : "none"
             }}>
             <ColorPicker
@@ -1675,7 +1309,7 @@ function moveShapeDown(i) {
               pickerMode = {pickerMode}
               setPickerMode = {setPickerMode}
             />
-          </div>
+          </div>}
         </>
       )}
 

@@ -1,0 +1,123 @@
+/* === Color Picker Container === */
+.color-picker-wrapper {
+  background: #0d141c;
+  border: 1px solid #00e6c3;
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* === React Colorful Core === */
+.react-colorful {
+  width: 300px !important;
+  height: 175px !important;
+  margin: auto !important;
+}
+
+.react-colorful__pointer {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #00ffcc;
+  box-shadow: 0 0 6px rgba(0, 255, 204, 0.8);
+}
+
+/* === Tabs (Colour Picker / Bonk 1 Colours) === */
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  font-weight: bold;
+  color: #00ffcc;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.tab {
+  cursor: pointer;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
+.tab.active {
+  color: #00ffcc;
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.8);
+}
+
+/* === Input Section === */
+.color-inputs {
+  display: flex;
+  gap: 8px;
+  margin: auto;
+  margin-top: 8px;
+}
+
+/* Each horizontal row (one for HEX, one for RGB) */
+.color-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Each input cell */
+.color-row div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+/* Input Fields */
+.color-row input {
+  width: 48px;
+  background: #1a2a33;
+  border: 1px solid #00e6c3;
+  border-radius: 4px;
+  color: #00ffcc;
+  text-align: center;
+  font-weight: bold;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.color-row input:focus {
+  outline: none;
+  border-color: #00ffcc;
+  box-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
+}
+
+/* Labels */
+.color-row label {
+  color: #ffffff;
+  font-size: 0.8rem;
+  margin-bottom: 2px;
+  text-shadow: 0 0 6px rgba(0, 255, 204, 0.5);
+}
+
+/* === Bonk 1 Colour Grid === */
+.bonk-color-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.bonk-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid #00e6c3;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.bonk-color:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 6px rgba(0, 255, 204, 0.5);
+}
+
+/* === Neon Glow Enhancements === */
+.color-picker-wrapper label,
+.tabs {
+  text-shadow: 0 0 4px rgba(0, 255, 204, 0.6);
+}
